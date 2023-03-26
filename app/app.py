@@ -106,7 +106,73 @@ class SignIn(Resource):
 		return make_response(jsonify(response), responseCode)
 
 
+class VideoGen(Resource):
+	def get(self):
+		response = call('getAllVideos')
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
 
+class VideoId(Resource):
+	def get(self, videoId):
+		sqlargs = (videoId,)
+		response = call('getVideo', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+
+
+class VidCom(Resource):
+	def get(self, videoId):
+		sqlargs = (videoId,)
+		response = call('getCommentsList', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+
+class VidUse(Resource):
+	def get(self, userId):
+		sqlargs = (userId, )
+		response = call('getVideoList', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+	
+
+	def post(self, userId):
+		if not request.json or not 'Path' in request.json:
+			abort(400)
+		vPath = request.json['Path']
+		vTitle = request.json['Title']
+		vDesc = request.json['Description']
+		sqlargs = (userId, vTitle, vDesc, vPath,)
+		response = call('uploadVideo', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+
+class VidLiked(Resource):
+	def get(self, userId):
+		sqlargs = (userId, )
+		response = call('getLikedVideos', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+
+
+class ViDel(Resource):
+	def delete(self, userId, videoId):
+		sqlargs = (videoId, )
+		response = call('deleteVideo', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+
+class VidLik(Resource):
+	def post(self, userId, videoId):
+		sqlargs = (userId, videoId, )
+		response = call('likeVideo', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+	
+	def delete(self, userId, videoId):
+		sqlargs = (userId, videoId, )
+		response = call('removeLike', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
 
 ####################################################################################
 #
@@ -114,11 +180,17 @@ class SignIn(Resource):
 #
 api = Api(app)
 api.add_resource(SignIn, '/signin')
-# api.add_resource(School, '/schools/<int:schoolId>')
+api.add_resource(VideoGen, '/videos')
+api.add_resource(VideoId, '/videos/<int:videoId>')
+api.add_resource(VidCom, '/videos/<int:videoId>/comments')
+api.add_resource(VidUse, '/users/<int:userId>/videos')
+api.add_resource(VidLiked, '/users/<int:userId>/videos/liked')
+api.add_resource(ViDel, '/users/<int:userId>/videos/<int:videoId>')
+api.add_resource(VidLik, '/users/<int:userId>/videos/<int:videoId>/like')
 
 #####################################################################################
 # Create database connection
-def call(proc_name: str, have_args: bool, sqlArgs=()):
+def call(proc_name: str, have_args = False, sqlArgs=()):
 	try:
 		dbConnection = pymysql.connect(
 		settings.DB_HOST,
@@ -135,7 +207,7 @@ def call(proc_name: str, have_args: bool, sqlArgs=()):
 			else:
 				cursor.callproc(proc_name) # stored procedure, no arguments
 				dbConnection.commit()
-				rows = cursor.fetchall() # get all the results
+			rows = cursor.fetchall() # get all the results
 		except pymysql.err.IntegrityError as e:
 			rows = {'error': str(e)}
 	except Exception as e:
