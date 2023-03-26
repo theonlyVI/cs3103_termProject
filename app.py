@@ -23,7 +23,6 @@ app.config['SESSION_COOKIE_DOMAIN'] = settings.APP_HOST
 
 Session(app)
 
-db_accessor = Accessor()
 
 ####################################################################################
 # Error handlers
@@ -92,7 +91,7 @@ class SignIn(Resource):
 # Stuff in here to find the esiting userId or create a use and get the created userId
 				response = {'status': 'success', 'user_id':'1' }
 				responseCode = 201
-				db_accessor.call('createUser', True, (request_params['username']))
+				call('createUser', True, (session['username'],))
 			except LDAPException:
 				response = {'status': 'Access denied'}
 				print(response)
@@ -129,6 +128,32 @@ api = Api(app)
 api.add_resource(SignIn, '/signin')
 # api.add_resource(Schools, '/schools')
 # api.add_resource(School, '/schools/<int:schoolId>')
+
+def call(proc_name: str, have_args: bool, sqlArgs=()):
+	##############################
+	# Create database connection
+	# try:
+	dbConnection = pymysql.connect(
+	settings.DB_HOST,
+	settings.DB_USER,
+	settings.DB_PASSWD,
+	settings.DB_DATABASE,
+	charset='utf8mb4',
+	cursorclass= pymysql.cursors.DictCursor)
+	cursor = dbConnection.cursor()
+	if have_args:
+		cursor.callproc(proc_name, sqlArgs)
+		dbConnection.commit()
+	else:
+		cursor.callproc(proc_name) # stored procedure, no arguments
+		dbConnection.commit()
+	rows = cursor.fetchall() # get all the results
+# except Exception as e:
+# 	abort(500) # Nondescript server error
+# finally:
+	cursor.close()
+	dbConnection.close()
+	return jsonify(rows) # turn set into json and return it
 
 #############################################################################
 # xxxxx= last 5 digits of your studentid. If xxxxx > 65535, subtract 30000

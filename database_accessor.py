@@ -22,12 +22,12 @@ class Accessor():
 	# Example request: curl -i -H "Content-Type: application/json" -X GET
 	# -b cookie-jar -k https://192.168.10.4:61340/schools
 		# try:
-		dbConnection = pymysql.connect(self.db_host, 
-			self.user, 
-			self.psw, 
-			self.db, 
-			self.charset, 
-			cursorclass= pymysql.cursors.DictCursor)
+		dbConnection = pymysql.connect(settings.DB_HOST,
+				settings.DB_USER,
+				settings.DB_PASSWD,
+				settings.DB_DATABASE,
+				charset='utf8mb4',
+				cursorclass= pymysql.cursors.DictCursor)
 		cursor = dbConnection.cursor()
 		if have_args:
 			cursor.callproc(proc_name, args)
