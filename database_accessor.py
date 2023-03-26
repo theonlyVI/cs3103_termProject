@@ -1,25 +1,42 @@
+#!/usr/bin/env python3
+import sys
+import json
+import pymysql
+import pymysql.cursors
+from flask import jsonify
+
+import settings
+
+
 class Accessor():
-    
+	def __init__(self) -> None:
+		self.host = settings.APP_HOST
+		self.user = settings.DB_USER
+		self.psw = settings.DB_PASSWD
+		self.db = settings.DB_DATABASE
+		charset = 'utf8mb4'
+
+	def call(self, proc_name: str, have_args: bool, args=()):
     # GET: Return all school resources. No autorizations
 	#
 	# Example request: curl -i -H "Content-Type: application/json" -X GET
 	# -b cookie-jar -k https://192.168.10.4:61340/schools
-	def get(self):
 		try:
-			dbConnection = pymysql.connect(
-				settings.DB_HOST,
-				settings.DB_USER,
-				settings.DB_PASSWD,
-				settings.DB_DATABASE,
-				charset='utf8mb4',
+			dbConnection = pymysql.connect(self.host, 
+				self.user, 
+				self.psw, 
+				self.db, 
+				self.charset, 
 				cursorclass= pymysql.cursors.DictCursor)
-			sql = 'getSchools'
 			cursor = dbConnection.cursor()
-			cursor.callproc(sql) # stored procedure, no arguments
+			if have_args:
+				cursor.callproc(proc_name, args)
+			else:
+				cursor.callproc(proc_name) # stored procedure, no arguments
 			rows = cursor.fetchall() # get all the results
-		except:
-			abort(500) # Nondescript server error
+		except Exception as e:
+			return(e) # Nondescript server error
 		finally:
 			cursor.close()
 			dbConnection.close()
-		return make_response(jsonify({'schools': rows}), 200) # turn set into json and return it
+		return jsonify(rows) # turn set into json and return it

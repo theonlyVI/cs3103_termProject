@@ -23,9 +23,9 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS createUser //
 
-CREATE PROCEDURE createUser(IN userNameIn VARCHAR(255), IN pwordIn VARCHAR(255))
+CREATE PROCEDURE createUser(IN userNameIn VARCHAR(255))
 BEGIN
-  INSERT INTO Users (userName, pWord) VALUES (userNameIn, MD5(pwordIn)); 
+  INSERT INTO Users (userName) VALUES (userNameIn); 
 END //
 
 DELIMITER ;
