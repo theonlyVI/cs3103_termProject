@@ -92,7 +92,7 @@ class SignIn(Resource):
 # Stuff in here to find the esiting userId or create a use and get the created userId
 				response = {'status': 'success', 'user_id':'1' }
 				responseCode = 201
-				db_accessor.call('creatUser', (request_params['username']))
+				db_accessor.call('createUser', True, (request_params['username']))
 			except LDAPException:
 				response = {'status': 'Access denied'}
 				print(response)
