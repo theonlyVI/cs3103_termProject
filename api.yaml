@@ -1,0 +1,777 @@
+openapi: 3.0.0 
+info: 
+  version: 1.0.0 
+  title: Video Hosting API 
+servers: 
+  - url: https://mock-video-hosting.com/api/v1 
+tags: 
+- name: Authentication
+  description: Authentication Gateway
+- name: General 
+  description: Access with authorization 
+- name: User 
+  description: "Access to your personal info" 
+- name: Video 
+  description: Everything video-related
+paths: 
+  /login:
+    post:
+      summary: Authenticate user
+      tags:
+      - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        '200':
+          description: User authenticated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Unauthorized
+  /logout:
+    post:
+      tags:
+      - Authentication
+      summary: Log out user
+      security:
+        - OAuth2:
+          - read
+          - write
+      responses:
+        '200':
+          description: User logged out successfully
+        '401':
+          description: Unauthorized
+  /videos: 
+    get: 
+      tags: 
+        - General 
+        - Video 
+      summary: Get IDs, titles, and authors of all videos 
+      description: Returns all videos along with their titles, upload dates, and user_ids 
+      operationId: getAllVideos 
+      responses: 
+        '200': 
+          description: OK 
+          content: 
+            application/json: 
+              schema: 
+                type: array 
+                items: 
+                  $ref: '#/components/schemas/Video' 
+        '404': 
+          description:  Resource not found  
+  /videos/{video_id}: 
+    get: 
+      tags: 
+        - General 
+        - Video 
+      summary: Get video by id 
+      description: Returns video name, upload date, creator name and creatorid for a given video id 
+      operationId: getVideoById 
+      parameters: 
+        - in: path 
+          name: video_id 
+          schema: 
+            type: integer 
+          required: true 
+          description: Numeric ID of the video to retrieve 
+        - name: filter 
+          in: query 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: OK 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Video' 
+        '404': 
+          description: Video ID not found
+  /videos/{video_id}/comments: 
+    get: 
+      tags: 
+        - General 
+        - Video 
+      summary: Get all the comments in the video 
+      description: Get comments by video ID 
+      operationId: getCommentByVideoID 
+      parameters: 
+      - name: video_id 
+        in: path 
+        schema: 
+          type: integer 
+        required: true 
+        description: Numeric ID of the video to retrieve comments from 
+      responses: 
+        '200': 
+          description: OK 
+          content: 
+            application/json: 
+              schema:  
+                type: array 
+                items: 
+                  $ref: '#/components/schemas/Comment' 
+        '404': 
+          description: Video ID not found 
+  /users/{user_id}/videos:
+    get: 
+      tags: 
+        - Video
+      summary: Get all videos uploaded by the user 
+      description: Get all videos uploaded by the user 
+      operationId: getAllVideosByUser 
+      parameters: 
+        - in: path 
+          name: user_id 
+          schema: 
+            type: integer 
+          required: true 
+          description: Numeric ID of the user uploading the video 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+      responses: 
+        '201': 
+          description: Created 
+          content: 
+            application/json: 
+              schema: 
+                type: array 
+                items: 
+                  $ref: '#/components/schemas/Video' 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+    post: 
+      tags: 
+        - Video 
+      summary: Upload a new video 
+      description: Upload a new video with multiform data in request body for a given user id 
+      operationId: uploadVideo 
+      parameters: 
+        - in: path 
+          name: user_id 
+          schema: 
+            type: integer 
+          required: true 
+          description: Numeric ID of the user uploading the video 
+      requestBody: 
+        content: 
+          multipart/form-data: 
+            schema: 
+              type: object 
+              properties: 
+                videopath: 
+                  type: string 
+                  format: binary 
+                title: 
+                  type: string 
+                description: 
+                  type: string 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+      responses: 
+        '201': 
+          description: Created 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Video' 
+        '401': 
+          description: Unauthorized - user is not authenticated
+  /users/{user_id}/videos/liked:
+    get:
+      tags:
+        - Video
+      summary: get all the liked videos
+      operationId: getLikedVideos
+      parameters:
+        - in: path
+          name: user_id
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the current user
+      responses: 
+        '200': 
+          description: Success 
+          content: 
+            application/json: 
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Video' 
+        '401': 
+          description: Unauthorized - user is not authenticated
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+  /users/{user_id}/videos/{video_id}: 
+    get: 
+      tags: 
+        - Video 
+      summary: Get a more detailed information about the user's video 
+      description: Get the video's title, upload date, file path and ID 
+      operationId: getVideoByUser 
+      parameters: 
+        - in: path 
+          name: user_id 
+          schema: 
+            type: integer 
+          required: true 
+          description: Numeric ID of the user uploading the video 
+        - in: path 
+          name: video_id 
+          schema: 
+            type: integer 
+          required: true 
+          description: ID of the video to search for 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+      responses: 
+        '201': 
+          description: Created 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Video' 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+    delete: 
+      summary: Delete video by video_id and user_id 
+      operationId: deleteVideo 
+      tags: 
+        - Video 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+      parameters: 
+        - name: user_id 
+          in: path 
+          description: The ID of the user who uploaded the video 
+          required: true 
+          schema: 
+            type: integer 
+        - name: video_id 
+          in: path 
+          description: The ID of the video to delete 
+          required: true 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: Video successfully deleted 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Video' 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+        '404': 
+          description: Video not found
+  /users/{user_id}/videos/{video_id}/like:
+    post: 
+      summary: like a video based on videoid and userid 
+      operationId: likeVideo 
+      tags: 
+        - Video 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+      parameters: 
+        - name: user_id
+          in: path 
+          description: Current user ID
+          required: true 
+          schema: 
+            type: integer 
+        - name: video_id 
+          in: path 
+          description: The ID of the video to like 
+          required: true 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: Video successfully liked
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Like' 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+        '404': 
+          description: Video not found
+    delete: 
+      summary: unlike a video 
+      operationId: unlikeVideo 
+      tags: 
+        - Video 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+      parameters: 
+        - name: user_id
+          in: path 
+          description: Current user ID
+          required: true 
+          schema: 
+            type: integer 
+        - name: video_id 
+          in: path 
+          description: The ID of the video to like 
+          required: true 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: Video successfully unliked
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Like' 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+        '404': 
+          description: Video not found
+        '204':
+          description: No Content
+  /users: 
+    get: 
+      tags: 
+        - General 
+        - User 
+      summary: Get all users's basic info 
+      description: Returns all user ids and usernames in json format 
+      operationId: getAllUsers 
+      responses: 
+        '200': 
+          description: OK 
+          content: 
+            application/json: 
+              schema: 
+                type: array 
+                items: 
+                  $ref: '#/components/schemas/User'
+    post: 
+      tags: 
+        - General 
+        - User 
+      summary: create a new user
+      description: Returns the created user's id and username in json format 
+      operationId: createUser
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              type: object 
+              properties: 
+                username: 
+                  type: string
+                password:
+                  type: string
+      responses: 
+        '200': 
+          description: OK 
+          content: 
+            application/json: 
+              schema: 
+                  $ref: '#/components/schemas/User'
+        '400': 
+          description: Bad Request 
+  /user/{user_id}: 
+    get: 
+      summary: Get user details 
+      description: Get details of the user 
+      operationId: getUserDetails 
+      tags: 
+        - User 
+      parameters: 
+        - name: user_id 
+          in: path 
+          description: ID of the user to retrieve 
+          required: true 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: User details including uploaded videos and comments 
+          content: 
+            application/json: 
+              schema: 
+                type: object 
+                properties: 
+                  userid: 
+                    type: integer 
+                  username: 
+                    type: string 
+                  videos: 
+                    type: array 
+                    items: 
+                      $ref: '#/components/schemas/Video' 
+                  comments: 
+                    type: array 
+                    items: 
+                      $ref: '#/components/schemas/Comment' 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+        '400':  
+          description: Invalid Request 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+    patch: 
+      summary: Update the user's username 
+      tags: 
+        - User 
+      parameters: 
+        - name: user_id 
+          in: path 
+          description: ID of the user to update 
+          required: true 
+          schema: 
+            type: integer 
+        - name: username 
+          in: query 
+          description: New username for the user 
+          required: true 
+          schema: 
+            type: string 
+      responses: 
+        '200': 
+          description: User updated successfully 
+          content: 
+            application/json: 
+              schema: 
+                type: object 
+                properties: 
+                  userid: 
+                    type: integer 
+                  username: 
+                    type: string 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+        '400': 
+          description: Bad Request 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+    delete: 
+      tags: 
+        - User 
+      summary: Delete current user 
+      description: Delete your profile along with your videos 
+      parameters: 
+        - in: path 
+          name: user_id 
+          schema: 
+            type: integer 
+          required: true 
+          description: Numeric ID of the user deleting the video 
+      responses: 
+        '200': 
+          description: OK 
+          content: 
+            application/json: 
+              schema: 
+               $ref: '#/components/schemas/User' 
+        '204': 
+          description: No Content 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+  /user/{user_id}/comments: 
+    get: 
+      summary: Get all user's comments 
+      description: Get details of the user 
+      operationId: getUserComments 
+      tags: 
+        - User 
+      parameters: 
+        - name: user_id 
+          in: path 
+          description: ID of the user to retrieve 
+          required: true 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: User details including uploaded videos and comments 
+          content: 
+            application/json: 
+              schema: 
+                type: object 
+                properties: 
+                  userid: 
+                    type: integer 
+                  username: 
+                    type: string 
+                  comments: 
+                    type: array 
+                    items: 
+                      $ref: '#/components/schemas/Comment' 
+        '400':  
+          description: Invalid Request 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+    post: 
+      summary: Comment on a video as the user 
+      description: Post a comment on the video as the user 
+      operationId: addComment 
+      tags: 
+        - User 
+      parameters: 
+        - name: user_id 
+          in: path 
+          description: ID of the user to retrieve 
+          required: true 
+          schema: 
+            type: integer 
+        - name: video_id 
+          in: query 
+          description: ID of the video to be commented 
+          required: true 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: Comment has been added to the video 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Comment' 
+        '400':  
+          description: Invalid Request 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+  /user/{user_id}/comments/{comment_id}: 
+    get: 
+      summary: Get the specified comment from the user 
+      description: Get details of the user 
+      operationId: getSingleComment 
+      tags: 
+        - User 
+      parameters: 
+        - name: user_id 
+          in: path 
+          description: ID of the user to retrieve 
+          required: true 
+          schema: 
+            type: integer 
+        - name: comment_id 
+          in: path 
+          description: ID of the comment 
+          required: true 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: User details including uploaded videos and comments 
+          content: 
+            application/json: 
+              schema: 
+                type: object 
+                properties: 
+                  userid: 
+                    type: integer 
+                  username: 
+                    type: string 
+                  comments: 
+                    type: array 
+                    items: 
+                      $ref: '#/components/schemas/Comment' 
+        '400':  
+          description: Invalid Request 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+      security: 
+      - OAuth2:
+        - write 
+        - read 
+    patch: 
+      summary: update the user's comment 
+      tags: 
+        - User 
+      parameters: 
+        - name: user_id 
+          in: path 
+          description: ID of the user to update 
+          required: true 
+          schema: 
+            type: integer 
+        - name: comment_id 
+          in: path 
+          description: Id of the comment 
+          required: true 
+          schema: 
+            type: integer 
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              type: object 
+              properties: 
+                body: 
+                  type: string 
+      responses: 
+        '200': 
+          description: User's comment updated successfully 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Comment' 
+        '400': 
+          description: Bad Request 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+    delete: 
+      tags: 
+        - User 
+      summary: Delete the user's comment 
+      description: Delete the user's comment 
+      operationId: deleteUserComment 
+      parameters: 
+        - in: path 
+          name: user_id 
+          schema: 
+            type: integer 
+          required: true 
+          description: Numeric ID of the user  
+        - in: path 
+          name: comment_id 
+          schema: 
+            type: integer 
+          required: true 
+          description: Numeric ID of the comment 
+      responses: 
+        '200': 
+          description: OK 
+          content: 
+            application/json: 
+              schema: 
+               $ref: '#/components/schemas/Comment' 
+        '204': 
+          description: No Content 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+components: 
+  securitySchemes: 
+    OAuth2: 
+      type: oauth2 
+      flows: 
+        authorizationCode: 
+          authorizationUrl: https://example.com/oauth/authorize 
+          tokenUrl: https://example.com/oauth/token 
+          scopes: 
+            read: Grants read access 
+            write: Grants write access 
+            admin: Grants access to admin operations 
+  schemas: 
+    User: 
+      type: object 
+      properties: 
+        userid: 
+          type: integer 
+          format: int64 
+        username: 
+          type: string 
+      required: 
+        - username 
+    Video: 
+      type: object 
+      properties: 
+        video_id: 
+          type: integer 
+          format: int64 
+        upload_date: 
+          type: string 
+          format: date-time 
+        video_path: 
+          type: string 
+        title: 
+          type: string 
+        description: 
+          type: string 
+        user_id: 
+          type: integer 
+          format: int64 
+      required: 
+        - video_path 
+        - title 
+        - user_id 
+        - video_id 
+        - upload_date 
+    Comment: 
+      type: object 
+      properties: 
+        comment_id:  
+          type: integer 
+          format: int64 
+        content: 
+          type: string 
+        user_id: 
+          type: integer 
+          format: int64 
+        video_id: 
+          type: integer 
+          format: int64
+    Like: 
+      type: object 
+      properties: 
+        like_id:  
+          type: integer 
+          format: int64 
+        user_id: 
+          type: integer 
+          format: int64 
+        video_id: 
+          type: integer 
+          format: int64 

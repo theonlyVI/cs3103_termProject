@@ -104,7 +104,7 @@ class LogIn(Resource):
 	#
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET
-	#	-b cookie-jar -k https://192.168.10.4:61340/signin
+	#	-b cookie-jar -k https://192.168.10.4:61340/login
 	def get(self):
 		if 'username' in session:
 			username = session['username']
@@ -121,7 +121,7 @@ class LogOut(Resource):
 	#
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
-	#	http://info3103.cs.unb.ca:61340/signin
+	#	http://info3103.cs.unb.ca:61340/logout
 
 	def delete(self):
 		if 'username' in session:
@@ -241,7 +241,7 @@ api = Api(app)
 # api.add_resource(Root,'/')
 # api.add_resource(Developer,'/dev')
 api.add_resource(LogIn, '/login')
-api.add_resource(LogOut, '/logOut')
+api.add_resource(LogOut, '/logout')
 api.add_resource(Users, '/Users')
 api.add_resource(loggedInUser, '/Users/<string:username>')
 api.add_resource(loggedInUserComment, '/Users/<string:username>/Comments')
