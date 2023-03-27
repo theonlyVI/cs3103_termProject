@@ -42,7 +42,7 @@ def not_found(error):
 ####################################################################################
 # Routing: GET and POST using Flask-Session
 
-class SignIn(Resource):
+class LogIn(Resource):
 
 	# Set Session and return Cookie
 	# Example curl command:
@@ -115,6 +115,122 @@ class SignIn(Resource):
 			responseCode = 403
 
 		return make_response(jsonify(response), responseCode)
+	
+class LogOut(Resource):
+	# DELETE: Logout: remove session
+	#
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
+	#	http://info3103.cs.unb.ca:61340/signin
+
+	def delete(self):
+		if 'username' in session:
+			session.pop('username', None)
+			response = {'status': 'success'}
+			responseCode = 200
+		else:
+			response = {'status': 'success'}
+			responseCode = 204
+		return make_response(jsonify(response), responseCode)
+	
+class Users(Resource):
+	# GET: info of all users
+	#
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X GET
+	#	-b cookie-jar -k https://192.168.10.4:8017/Users
+	def get(self):
+		response = call('getUserList')
+		responseCode = 200
+		return make_response(jsonify(response), responseCode)
+
+class loggedInUser(Resource):
+	# GET: info of all users
+	#
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X GET
+	#	-b cookie-jar -k https://192.168.10.4:8017/Users
+	def get(self, username):
+		if 'username' in session:
+			username = session['username']
+			response = call('getUserInfo', True, (username,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+
+		return make_response(jsonify(response), responseCode)
+
+	def delete(self, username):
+		if 'username' in session:
+			username = session['username']
+			response = call('deleteUser', True, (username,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+
+class loggedInUserComment(Resource):
+	# GET: info of all users
+	#
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X GET
+	#	-b cookie-jar -k https://192.168.10.4:8017/Users
+	def get(self, username):
+		if 'username' in session and username == session['username']:
+			response = call('getCommentsByUser', True, (username,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+
+		return make_response(jsonify(response), responseCode)
+
+	def post(self, username):
+		if 'username' in session:
+			username = session['username']
+			json_data = request.get_json()
+			response = call('writeComment', True, (username, request.args.get('video_id'), json_data.get('comment'),))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+	
+
+
+class loggedInUserCommentManip(Resource):
+
+	def get(self, username, comment_id):
+		print(session)
+		if 'username' in session and username == session['username']:
+			response = call('getCommentByIdAndUser', True, (username, comment_id,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+
+	def patch(self, username, comment_id):
+		if 'username' in session and username == session['username']:
+			json_data = request.get_json()
+			response = call('editComment', True, (username, comment_id, json_data.get('comment'),))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+	
+	def delete(self, username, comment_id):
+		if 'username' in session and username == session['username']:
+			response = call('getCommentByIdAndUser', True, (username, comment_id,))
+			call('deleteComment', True, (username, comment_id,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
 
 
 ####################################################################################
@@ -124,13 +240,18 @@ class SignIn(Resource):
 api = Api(app)
 # api.add_resource(Root,'/')
 # api.add_resource(Developer,'/dev')
-api.add_resource(SignIn, '/signin')
+api.add_resource(LogIn, '/login')
+api.add_resource(LogOut, '/logOut')
+api.add_resource(Users, '/Users')
+api.add_resource(loggedInUser, '/Users/<string:username>')
+api.add_resource(loggedInUserComment, '/Users/<string:username>/Comments')
+api.add_resource(loggedInUserCommentManip, '/Users/<string:username>/Comments/<int:comment_id>')
 # api.add_resource(Schools, '/schools')
 # api.add_resource(School, '/schools/<int:schoolId>')
 
 #####################################################################################
 # Create database connection
-def call(proc_name: str, have_args: bool, sqlArgs=()):
+def call(proc_name: str, have_args=False, sqlArgs=()):
 	try:
 		dbConnection = pymysql.connect(
 		settings.DB_HOST,
@@ -140,17 +261,18 @@ def call(proc_name: str, have_args: bool, sqlArgs=()):
 		charset='utf8mb4',
 		cursorclass= pymysql.cursors.DictCursor)
 		cursor = dbConnection.cursor()
-		try:
-			if have_args:
-				cursor.callproc(proc_name, sqlArgs)
-				dbConnection.commit()
-			else:
-				cursor.callproc(proc_name) # stored procedure, no arguments
-				dbConnection.commit()
-				rows = cursor.fetchall() # get all the results
-		except pymysql.err.IntegrityError as e:
-			rows = {'error': str(e)}
+		# try:
+		if have_args:
+			cursor.callproc(proc_name, sqlArgs)
+			dbConnection.commit()
+		else:
+			cursor.callproc(proc_name) # stored procedure, no arguments
+			dbConnection.commit()
+		rows = cursor.fetchall() # get all the results
+		# except pymysql.err as e:
+		# 	rows = {'error': str(e)}
 	except Exception as e:
+		rows = {'error': str(e)}
 		abort(500) # Nondescript server error
 	finally:
 		cursor.close()

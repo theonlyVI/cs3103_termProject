@@ -1,9 +1,9 @@
 DELIMITER //
 DROP PROCEDURE IF EXISTS deleteComment //
 
-CREATE PROCEDURE deleteComment(IN userIdIn INT, IN videoIdIn INT)
+CREATE PROCEDURE deleteComment(IN uName VARCHAR(255), IN commentIdIn INT)
 BEGIN
-  DELETE FROM Comments WHERE idVideo = videoIdIn AND idUser = userIdIn;
+  DELETE FROM Comments WHERE (SELECT idUser FROM Users WHERE userName = uName) = Comments.idUser AND idComment = commentIdIn;
 END //
 
 DELIMITER ;
@@ -67,9 +67,31 @@ DELIMITER ;
 DELIMITER //
 DROP PROCEDURE IF EXISTS editComment //
 
-CREATE PROCEDURE editComment(IN userIdIn INT, IN videoIdIn INT, IN commentIn VARCHAR(255))
+CREATE PROCEDURE editComment(IN uName VARCHAR(255), IN commentIdIn INT,IN commentIn VARCHAR(255))
 BEGIN
-  UPDATE Comments SET commentText = commentIn WHERE userIdIn = idUser AND idVideo = videoIdIn;
+  UPDATE Comments SET commentText = commentIn WHERE (SELECT idUser FROM Users WHERE userName = uName) = Comments.idUser AND idComment = commentIdIn;
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS getCommentsByUser //
+
+CREATE PROCEDURE getCommentsByUser(IN uName VARCHAR(255))
+BEGIN
+  SELECT * FROM Comments WHERE (SELECT idUser FROM Users WHERE userName = uName) = idUser;
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS getCommentByIdAndUser //
+
+CREATE PROCEDURE getCommentByIdAndUser(IN uName VARCHAR(255), IN commentIdIn INT)
+BEGIN
+  SELECT * FROM Comments WHERE idComment = commentIdIn AND (SELECT idUser FROM Users WHERE userName = uName) = idUser;
 END //
 
 DELIMITER ;
