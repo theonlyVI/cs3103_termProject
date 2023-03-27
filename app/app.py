@@ -162,8 +162,7 @@ class loggedInUser(Resource):
 		return make_response(jsonify(response), responseCode)
 
 	def delete(self, username):
-		if 'username' in session:
-			username = session['username']
+		if 'username' in session and username == session['username']:
 			response = call('deleteUser', True, (username,))
 			responseCode = 200
 		else:
@@ -188,8 +187,7 @@ class loggedInUserComment(Resource):
 		return make_response(jsonify(response), responseCode)
 
 	def post(self, username):
-		if 'username' in session:
-			username = session['username']
+		if 'username' in session and username == session['username']:
 			json_data = request.get_json()
 			response = call('writeComment', True, (username, request.args.get('video_id'), json_data.get('comment'),))
 			responseCode = 200
@@ -231,6 +229,103 @@ class loggedInUserCommentManip(Resource):
 			response = {'status': 'fail'}
 			responseCode = 403
 		return make_response(jsonify(response), responseCode)
+	
+
+###########################################################
+# ALI's CODE
+
+class VideoGen(Resource):
+	def get(self):
+		response = call('getAllVideos')
+		responsecode = 200
+		if len(response) < 0:
+			return make_response(jsonify({"status": "fail"}), 404)
+		return make_response(jsonify(response), responsecode)
+
+class VideoId(Resource):
+	def get(self, videoId):
+		sqlargs = (videoId,)
+		response = call('getVideo', True, sqlargs)
+		if len(response) < 0:
+			return make_response(jsonify({"status": "fail"}), 404)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+
+
+class VidCom(Resource):
+	def get(self, videoId):
+		sqlargs = (videoId,)
+		response = call('getCommentsList', True, sqlargs)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+
+class VidUse(Resource):
+	def get(self, username):
+		sqlargs = (username, )
+		response = call('getVideoList', True, sqlargs)
+		# if len(response) < 0:
+		# 	return make_response(jsonify({"status": "fail"}), 404)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+	
+
+	def post(self, username):
+		if not request.json or not 'Path' in request.json:
+			abort(400)
+		if 'username' in session and username == session['username']:
+			vPath = request.json['Path']
+			vTitle = request.json['Title']
+			vDesc = request.json['Description']
+			sqlargs = (username, vTitle, vDesc, vPath,)
+			response = call('uploadVideo', True, sqlargs)
+			responsecode = 200
+			return make_response(jsonify(response), responsecode)
+		return make_response(jsonify({"status": "fail"}), 403)
+
+class VidLiked(Resource):
+	def get(self, userId):
+		sqlargs = (userId, )
+		response = call('getLikedVideos', True, sqlargs)
+		if len(response) < 0:
+			return make_response(jsonify({"status": "fail"}), 404)
+		responsecode = 200
+		return make_response(jsonify(response), responsecode)
+
+
+class ViDel(Resource):
+	def delete(self, username, videoId):
+		if 'username' in session and username == session['username']:
+			sqlargs = (username, videoId,)
+			response = call('deleteVideo', True, sqlargs)
+			responsecode = 200
+			return make_response(jsonify(response), responsecode)
+		else:
+			return make_response(jsonify({"status": "fail"}), 403)
+
+
+class VidLik(Resource):
+	def post(self, username, videoId):
+		if 'username' in session and username == session['username']:		
+			sqlargs = (username, videoId, )
+			response = call('likeVideo', True, sqlargs)
+			responsecode = 200
+			return make_response(jsonify("video id " + str(videoId) +  " Liked"), responsecode)
+		else:
+			return make_response(jsonify({"status": "fail"}), 403)
+	
+	def delete(self, username, videoId):
+		if 'username' in session:
+			sqlargs = (username, videoId, )
+			response = call('removeLike', True, sqlargs)
+			responsecode = 200
+			return make_response(jsonify("like deleted"), responsecode)
+		else:
+			return make_response(jsonify({"status": "fail"}), 403)
+
+
+####################################################################################
+
+
 
 
 ####################################################################################
@@ -246,8 +341,16 @@ api.add_resource(Users, '/Users')
 api.add_resource(loggedInUser, '/Users/<string:username>')
 api.add_resource(loggedInUserComment, '/Users/<string:username>/Comments')
 api.add_resource(loggedInUserCommentManip, '/Users/<string:username>/Comments/<int:comment_id>')
-# api.add_resource(Schools, '/schools')
-# api.add_resource(School, '/schools/<int:schoolId>')
+
+# ALI's part
+api.add_resource(VideoGen, '/videos')
+api.add_resource(VideoId, '/videos/<int:videoId>')
+api.add_resource(VidCom, '/videos/<int:videoId>/comments')
+api.add_resource(VidUse, '/users/<string:username>/videos')
+api.add_resource(VidLiked, '/users/<int:userId>/videos/liked')
+api.add_resource(ViDel, '/users/<string:username>/videos/<int:videoId>')
+api.add_resource(VidLik, '/users/<string:username>/videos/<int:videoId>/like')
+
 
 #####################################################################################
 # Create database connection

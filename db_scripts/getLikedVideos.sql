@@ -1,0 +1,10 @@
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS getLikedVideos//
+
+CREATE PROCEDURE getLikedVideos (IN userId INT)
+BEGIN
+SELECT * FROM Videos WHERE idVideo IN (SELECT idVideo FROM Likes WHERE idUser = userId);
+END//
+
+DELIMITER ;
