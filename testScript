@@ -1,0 +1,40 @@
+#!/bin/bash
+
+echo "Getting all videos"
+curl -k https://cs3103.cs.unb.ca:49005/users/2/videos
+
+
+echo "Getting a single video using its ID"
+curl -k https://cs3103.cs.unb.ca:49005/videos/2
+
+
+echo "Getting all the comments on a video"
+curl -k https://cs3103.cs.unb.ca:49005/videos/2/comments
+
+
+echo "Getting all the videos uploaded by a user"
+ curl -k https://cs3103.cs.unb.ca:49005/users/vanguyen2/videos
+
+
+echo "Creating a new video"
+curl -k -b cookie-jar -i -X POST -H "Content-Type: application/json" -d '{"Path": "abcd", "Title": "workk", "Description": "si"}' https://cs3103.cs.unb.ca:49005/users/hi/videos
+
+
+echo "Getting all the videos liked by a user"
+curl -k https://cs3103.cs.unb.ca:49005/users/3/videos/liked
+
+
+echo "Deleting a video by the user"
+curl -k -X DELETE https://cs3103.cs.unb.ca:49005/users/hi/videos/5
+
+
+echo "Liking a video"
+curl -k -b cookie-jar -i -X POST https://cs3103.cs.unb.ca:49005/users/hi/videos/2/like
+
+
+echo "Removing ones like from a video"
+curl -k -X DELETE https://cs3103.cs.unb.ca:49005/users/hi/videos/2/like
+
+
+
+
