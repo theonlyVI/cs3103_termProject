@@ -110,12 +110,16 @@ class VideoGen(Resource):
 	def get(self):
 		response = call('getAllVideos')
 		responsecode = 200
+		if len(response) < 0:
+			return make_response(jsonify({"status": "fail"}), 404)
 		return make_response(jsonify(response), responsecode)
 
 class VideoId(Resource):
 	def get(self, videoId):
 		sqlargs = (videoId,)
 		response = call('getVideo', True, sqlargs)
+		if len(response) < 0:
+			return make_response(jsonify({"status": "fail"}), 404)
 		responsecode = 200
 		return make_response(jsonify(response), responsecode)
 
@@ -131,6 +135,8 @@ class VidUse(Resource):
 	def get(self, userId):
 		sqlargs = (userId, )
 		response = call('getVideoList', True, sqlargs)
+		if len(response) < 0:
+			return make_response(jsonify({"status": "fail"}), 404)
 		responsecode = 200
 		return make_response(jsonify(response), responsecode)
 	
@@ -138,41 +144,56 @@ class VidUse(Resource):
 	def post(self, userId):
 		if not request.json or not 'Path' in request.json:
 			abort(400)
-		vPath = request.json['Path']
-		vTitle = request.json['Title']
-		vDesc = request.json['Description']
-		sqlargs = (userId, vTitle, vDesc, vPath,)
-		response = call('uploadVideo', True, sqlargs)
-		responsecode = 200
-		return make_response(jsonify(response), responsecode)
+		if 'username' in session:
+			vPath = request.json['Path']
+			vTitle = request.json['Title']
+			vDesc = request.json['Description']
+			sqlargs = (userId, vTitle, vDesc, vPath,)
+			response = call('uploadVideo', True, sqlargs)
+			responsecode = 200
+			return make_response(jsonify(response), responsecode)
+		return make_response(jsonify({"status": "fail"}), 403)
 
 class VidLiked(Resource):
 	def get(self, userId):
 		sqlargs = (userId, )
 		response = call('getLikedVideos', True, sqlargs)
+		if len(response) < 0:
+			return make_response(jsonify({"status": "fail"}), 404)
 		responsecode = 200
 		return make_response(jsonify(response), responsecode)
 
 
 class ViDel(Resource):
 	def delete(self, userId, videoId):
-		sqlargs = (videoId, )
-		response = call('deleteVideo', True, sqlargs)
-		responsecode = 200
-		return make_response(jsonify(response), responsecode)
+		if 'username' in session:
+			sqlargs = (videoId, )
+			response = call('deleteVideo', True, sqlargs)
+			responsecode = 200
+			return make_response(jsonify(response), responsecode)
+		else:
+			return make_response(jsonify({"status": "fail"}), 403)
+
 
 class VidLik(Resource):
 	def post(self, userId, videoId):
-		sqlargs = (userId, videoId, )
-		response = call('likeVideo', True, sqlargs)
-		responsecode = 200
-		return make_response(jsonify(response), responsecode)
+		if 'username' in session:		
+			sqlargs = (userId, videoId, )
+			response = call('likeVideo', True, sqlargs)
+			responsecode = 200
+			return make_response(jsonify("video " + str(videoId) +  " Liked"), responsecode)
+		else:
+			return make_response(jsonify({"status": "fail"}), 403)
 	
 	def delete(self, userId, videoId):
-		sqlargs = (userId, videoId, )
-		response = call('removeLike', True, sqlargs)
-		responsecode = 200
-		return make_response(jsonify(response), responsecode)
+		if 'username' in session:
+			sqlargs = (userId, videoId, )
+			response = call('removeLike', True, sqlargs)
+			responsecode = 200
+			return make_response(jsonify("like deleted"), responsecode)
+		else:
+			return make_response(jsonify({"status": "fail"}), 403)
+
 
 ####################################################################################
 #
