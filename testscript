@@ -1,0 +1,88 @@
+#!/bin/bash
+# Read username and password
+
+echo "Testing:"
+echo "Test Log In: for ldap authentication, please input your UNB credentials:"
+read -r -p "username: " username
+read -r -s -p "password: " password
+
+# substitute into the curl command
+curl -i -H "Content-Type: application/json" \
+   -X POST -d '{"username": "'$username'", "password": "'$password'"}' \
+   -c cookie-jar -k https://cs3103.cs.unb.ca:8017/login
+
+echo "Get all users info":
+curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k https://cs3103.cs.unb.ca:8017/Users
+
+echo "Get user info"
+curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k https://cs3103.cs.unb.ca:8017/Users/$username
+
+# ali's part
+echo "Getting all videos"
+curl -k https://cs3103.cs.unb.ca:8017/videos
+
+
+echo "Getting a single video using its ID"
+curl -k https://cs3103.cs.unb.ca:8017/videos/2
+
+
+echo "Getting all the comments on a video"
+curl -k https://cs3103.cs.unb.ca:8017/videos/2/comments
+
+
+echo "Getting all the videos uploaded by a user"
+curl -k https://cs3103.cs.unb.ca:8017/users/vanguyen2/videos
+
+echo "Creating a new video"
+curl -k -b cookie-jar -i -X POST -H "Content-Type: application/json" -d '{"Path": "abcd", "Title": "workk", "Description": "si"}' https://cs3103.cs.unb.ca:8017/users/$username/videos
+
+
+echo "Getting all the videos liked by a user"
+curl -k https://cs3103.cs.unb.ca:8017/users/3/videos/liked
+
+
+echo "Deleting a video by the user"
+curl -k -X DELETE https://cs3103.cs.unb.ca:8017/users/$username/videos/5
+
+
+echo "Liking a video"
+curl -k -b cookie-jar -i -X POST https://cs3103.cs.unb.ca:8017/users/$username/videos/2/like
+
+
+echo "Removing ones like from a video"
+curl -k -X DELETE https://cs3103.cs.unb.ca:8017/users/$username/videos/2/like
+###
+
+echo "Write a comment":
+curl -i -H "Content-Type: application/json" -d '{"comment": "I commented as '$username'."}' -X POST -b cookie-jar -k "https://cs3103.cs.unb.ca:8017/Users/$username/Comments?video_id=2"
+
+echo "Get all comments by the current user"
+curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k "https://cs3103.cs.unb.ca:8017/Users/$username/Comments"
+
+echo "Update the user's comment:"
+read -r -p "comment_id (Based on the all-comments query output above): " comment_id
+curl -i -H "Content-Type: application/json" -d '{"comment": "I commented as '$username'.Edited the second time"}' -X PATCH -b cookie-jar -k "https://cs3103.cs.unb.ca:8017/Users/$username/Comments/$comment_id"
+
+echo "Get all comments by the current user"
+curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k "https://cs3103.cs.unb.ca:8017/Users/$username/Comments"
+
+echo "Get comment by userid and commentid"
+read -r -p "comment_id: (Based on the all-comments query output above)" comment_id 
+curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k "https://cs3103.cs.unb.ca:8017/Users/$username/Comments/$comment_id"
+
+echo "Delete a comment by user id and comment id"
+read -r -p "comment_id: (Based on the query output above)" comment_id 
+curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k "https://cs3103.cs.unb.ca:8017/Users/vnguyen4/Comments/$comment_id"
+
+echo "Get all comments by the current user"
+curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k "https://cs3103.cs.unb.ca:8017/Users/$username/Comments"
+
+echo "Delete User:"
+curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:8017/Users/$username
+
+echo "Log out:"
+curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:8017/logout
+
+
+#!/bin/bash
+
