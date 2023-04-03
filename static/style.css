@@ -1,160 +1,244 @@
 * {
-    box-sizing: border-box;
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #000000;
-  }
-  
-  #app {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
+  box-sizing: border-box;
+  font-family: 'Courier New', Courier, monospace;
+}
 
-  .image-button {
-    background-color: transparent;
-    border: none;
-    padding: 0;
-  }
-  
-  header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-  }
-  
-  header h1 {
-    margin: 0;
-  }
-  
-  main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  #video-player {
-    width: 100%;
-    max-width: 500px;
-    margin: 20px 0;
-  }
-  
-  #video-player video {
-    width: 100%;
-  }
-  
-  .video {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 500px;
-    margin: 20px 0;
-  }
-  
-  .video h2 {
-    margin: 10px 0;
-  }
-  
-  .video video {
-    width: 100%;
-  }
-  
-  .menu-bar {
-    background-color: #000;
-    color: #fff;
-    height: 50px;
-    padding: 0 20px;
-  }
-  
-  .menu-bar ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100%;
-  }
-  
-  .menu-bar li {
-    margin: 0;
-  }
-  
-  .menu-bar a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: bold;
-    margin: 0 10px;
-  }
-  
-  .menu-bar a:hover {
-    text-decoration: underline;
-  }
-  .horizontal-container {
-    display: flex;
-    align-items: center;
-  }
-  
-  .spacer {
-    flex-grow: 1;
-  }
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+}
 
-  /* shout out to https://github.com/livebloggerofficial/ */
-  
-  .like-button .heart-icon {
-    height: 100px;
-    width: 100px;
-    background: url("../resources/icons/heart_sprites.png");
-    background-position: left;
-    cursor: pointer;
-    position: absolute;
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.image-button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+}
+
+header h1 {
+  margin: 0;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: black;
+}
+
+#video-player {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px 0;
+}
+
+#video-player video {
+  width: 100%;
+}
+
+.video {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 20px 0;
+}
+
+.container-fluid{
+  font-family: 'Courier New', Courier, monospace;
+  color: rgb(0, 0, 0);
+  background-color: rgb(0, 0, 0);
+}
+.jumbotron{
+
+color: rebeccapurple;
+background-color: black;
+}
+
+.Home-page {
+  align-items: center;
+  display:flex;
+  flex-direction: column;
+}
+
+.like-button {
+  align-items: center;
+  margin: auto;
+  width: 50px;
+}
+
+.video h2 {
+  margin: 10px 0;
+}
+
+.video video {
+  width: 100%;
+}
+
+.menu-bar {
+  background-color: #000;
+  color: #fff;
+  height: 50px;
+  padding: 0 20px;
+}
+
+.menu-bar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.menu-bar li {
+  margin: 0;
+}
+
+.menu-bar a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 10px;
+}
+
+.menu-bar a:hover {
+  text-decoration: underline;
+}
+
+.horizontal-container {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+/* shout out to https://github.com/livebloggerofficial/ */
+
+.like-button .heart-icon {
+  height: 100px;
+  width: 100px;
+  background: url("../resources/icons/heart_sprites.png");
+  background-position: left;
+  cursor: pointer;
+  position: absolute;
+}
+
+.like-button .heart-icon.liked {
+  animation: like-anim 0.7s steps(28) forwards;
+}
+
+@keyframes like-anim {
+  to {
+    background-position: right;
   }
-  
-  .like-button .heart-icon.liked {
-    animation: like-anim 0.7s steps(28) forwards;
-  }
-  
-  @keyframes like-anim {
-    to {
-      background-position: right;
-    }
-  }
-  
-  .like-button .heart-bg {
-    background: rgba(255, 192, 200, 0);
-    border-radius: 50%;
-    height: 60px;
-    width: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 100ms ease;
-  }
-  
-  /* .like-button .heart-bg:hover {
+}
+
+.like-button .heart-bg {
+  background: rgba(255, 192, 200, 0);
+  border-radius: 50%;
+  height: 60px;
+  width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 100ms ease;
+}
+
+/* .like-button .heart-bg:hover {
     background: rgba(255, 192, 200, 0.7);
   } */
-  
-  .like-button {
-    display: flex;
-    align-items: center;
-  }
-  
-  .like-button .likes-amount {
-    font-size: 20px;
-    font-family: "Roboto", sans-serif;
-    color: #ffffff;
-    font-weight: 900;
-    margin-left: 6px;
-  }
-    
-  
 
-  
+.like-button {
+  display: flex;
+  align-items: center;
+}
+
+.like-button .likes-amount {
+  font-size: 20px;
+  font-family: "Roboto", sans-serif;
+  color: #ffffff;
+  font-weight: 900;
+  margin-left: 6px;
+}
+
+/* profile part */
+
+.user-profile {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-picture {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+.follow-button {
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 20px;
+}
+
+.video-card {
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+.video-card video {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* .like-button {
+    background-color: #1877f2;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+  } */
