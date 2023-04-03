@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Minute</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <h1>Minute</h1>
+        </header>
+        <main>
+            <div class="horizontal-container">
+                <button class="image-button" @click="playVideo()">
+                    <img src="../resources/icons/left_arrow.png" alt="Image 1" width="20%">
+                </button>
+                <div id="video-player">
+                    <video controls :src="currentVideo.src"></video>
+                </div>
+                <button class="image-button" @click="playVideo()">
+                    <img src="../resources/icons/right_arrow.png" alt="Image 1" width="20%">
+                </button>
+            </div>
+            <div class="like-button">
+                <div class="heart-bg">
+                    <div class="heart-icon" :class="{ 'liked': isLiked }" @click="toggleLike"></div>
+                </div>
+                <div class="likes-amount">7</div>
+            </div>
+
+            <!-- <div id="video-player">
+                <video v-if="currentVideo" controls
+                    src="/home1/ugrads/vnguyen4/cs3103/Term Project/resources/videos/atoms.mp4"></video>
+                <h2 v-else>No videos to display</h2>
+            </div>
+            <div class="video" v-for="(video, index) in videos" :key="index" @click="playVideo(index)">
+                <h2>{{ video.title }}</h2>
+                <video :src="video.src"></video>
+            </div> -->
+        </main>
+        <div class="menu-bar">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Trending</a></li>
+                <li><a href="#">Discover</a></li>
+                <li><a href="#">Following</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Upload</a></li>
+            </ul>
+        </div>
+    </div>
+    <script src="./vue.js"></script>
+    <script></script>
+</body>
+
+</html>

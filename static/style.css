@@ -1,0 +1,160 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #000000;
+  }
+  
+  #app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .image-button {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+  }
+  
+  header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+  }
+  
+  header h1 {
+    margin: 0;
+  }
+  
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  #video-player {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px 0;
+  }
+  
+  #video-player video {
+    width: 100%;
+  }
+  
+  .video {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px 0;
+  }
+  
+  .video h2 {
+    margin: 10px 0;
+  }
+  
+  .video video {
+    width: 100%;
+  }
+  
+  .menu-bar {
+    background-color: #000;
+    color: #fff;
+    height: 50px;
+    padding: 0 20px;
+  }
+  
+  .menu-bar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .menu-bar li {
+    margin: 0;
+  }
+  
+  .menu-bar a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 10px;
+  }
+  
+  .menu-bar a:hover {
+    text-decoration: underline;
+  }
+  .horizontal-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .spacer {
+    flex-grow: 1;
+  }
+
+  /* shout out to https://github.com/livebloggerofficial/ */
+  
+  .like-button .heart-icon {
+    height: 100px;
+    width: 100px;
+    background: url("../resources/icons/heart_sprites.png");
+    background-position: left;
+    cursor: pointer;
+    position: absolute;
+  }
+  
+  .like-button .heart-icon.liked {
+    animation: like-anim 0.7s steps(28) forwards;
+  }
+  
+  @keyframes like-anim {
+    to {
+      background-position: right;
+    }
+  }
+  
+  .like-button .heart-bg {
+    background: rgba(255, 192, 200, 0);
+    border-radius: 50%;
+    height: 60px;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 100ms ease;
+  }
+  
+  /* .like-button .heart-bg:hover {
+    background: rgba(255, 192, 200, 0.7);
+  } */
+  
+  .like-button {
+    display: flex;
+    align-items: center;
+  }
+  
+  .like-button .likes-amount {
+    font-size: 20px;
+    font-family: "Roboto", sans-serif;
+    color: #ffffff;
+    font-weight: 900;
+    margin-left: 6px;
+  }
+    
+  
+
+  
