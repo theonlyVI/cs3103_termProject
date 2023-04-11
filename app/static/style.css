@@ -58,20 +58,33 @@ main {
   margin: 20px 0;
 }
 
-.container-fluid{
+.container-fluid {
   font-family: 'Courier New', Courier, monospace;
   color: rgb(0, 0, 0);
   background-color: rgb(0, 0, 0);
 }
-.jumbotron{
 
-color: rebeccapurple;
-background-color: black;
+.jumbotron {
+
+  color: rebeccapurple;
+  background-color: black;
+}
+
+.upload-video {
+  color: white;
+  display: flex;
+  justify-content: center;
+}
+
+.upload-video .upload-video-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .Home-page {
   align-items: center;
-  display:flex;
+  display: flex;
   flex-direction: column;
 }
 
@@ -240,13 +253,16 @@ form {
   align-items: center;
   margin-top: 50px;
 }
+
 label {
   font-size: 1.2rem;
   margin-bottom: 20px;
 }
+
 input[type="file"] {
   margin-bottom: 20px;
 }
+
 button[type="submit"] {
   padding: 10px 20px;
   background-color: #4CAF50;
@@ -264,3 +280,86 @@ button[type="submit"] {
     margin-top: 10px;
     cursor: pointer;
   } */
+
+/* shoutout to https://codepen.io/danimerida2000/pen/wVXegX */
+/* three-dot drop down button */
+.showLeft {
+  background-color: white !important;
+  border: 1px solid white !important;
+  text-shadow: white !important;
+  color: black !important;
+  padding: 10px;
+}
+
+.icons li {
+  background: none repeat scroll 0 0 black;
+  height: 7px;
+  width: 7px;
+  line-height: 0;
+  list-style: none outside none;
+  margin-right: 15px;
+  margin-top: 3px;
+  vertical-align: top;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.btn-left {
+  left: 0.4em;
+}
+
+.btn-right {
+  right: 0.4em;
+}
+
+.btn-left,
+.btn-right {
+  position: absolute;
+  top: 0.24em;
+}
+
+.dropbtn {
+  background-color: #4caf50;
+  position: fixed;
+  color: white;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropbtn:hover,
+.dropbtn:focus {
+  background-color: #3e8e41;
+}
+
+.dropdown {
+  position: absolute;
+  display: inline-block;
+  right: 0.4em;
+}
+
+.dropdown-content {
+  display: none;
+  position: relative;
+  margin-top: 60px;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown a:hover {
+  background-color: #f1f1f1;
+}
+
+.show {
+  display: block;
+}

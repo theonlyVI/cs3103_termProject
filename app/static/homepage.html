@@ -19,8 +19,10 @@
                     <h1>MINUTES<sup><small>TM</small></sup></h1>
                     <p><em>Minutes of Entertainment!</em></p>
                     <div class="form-group text-center">
-                        <input class="col-4 mx-auto form-control" type="text" name="username" v-model="input.username"placeholder="Username"/>
-                        <input class="col-4 mx-auto form-control" type="password" name="password" v-model="input.password" placeholder="Password"/>
+                        <input class="col-4 mx-auto form-control" type="text" name="username" v-model="input.username"
+                            placeholder="Username" />
+                        <input class="col-4 mx-auto form-control" type="password" name="password"
+                            v-model="input.password" placeholder="Password" />
                         <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()">Login</button>
                     </div>
                     <!-- <div v-else class="text-center">
@@ -55,22 +57,22 @@
                     <div class="profile-header">
                         <img class="profile-picture" :src="user.profilePicture" alt="Profile Picture">
                         <div class="profile-info">
-                            <h1>{{ user.name }}</h1>
+                            <h1>{{ input.username }}</h1>
                             <p>{{ user.bio }}</p>
                             <!-- <button class="follow-button">{{ user.followers }} Followers</button> -->
                         </div>
                     </div>
                     <div class="video-grid">
-                        <div v-for="video in user.videos" :key="video.id" class="video-card">
+                        <div v-for="video in user.videos" :key="video.idVideo" class="video-card">
                             <p></p>
                             <p></p>
                             <p></p>
                             <div class="video-info">
-                                <h2>{{ video.title }}</h2>
-                                <p>{{ video.description }}</p>
+                                <h2>{{ video.videoTitle }}</h2>
+                                <p>{{ video.videoDescription }}</p>
                             </div>
                             <video width="400" controls>
-                                <source :src="video.src" type="video/mp4">
+                                <source :src="video.videoPath" type="video/webm">
                             </video>
                             <div class="like-button">
                                 <div class="heart-bg">
@@ -83,11 +85,25 @@
                 </div>
             </div>
 
-            <div v-if="pages['upload']" class="UploadVideo">
-                <form>
-                    <label for="video">Select a video file to upload:</label>
-                    <input type="file" id="video" name="video" ref="videoInput">
-                    <button type="submit" @click.prevent="uploadVideo">Upload</button>
+            <div v-if="pages['upload']" class="upload-video">
+                <form class="upload-video-form">
+                    <div>
+                        <label for="videoTitle">Title:</label>
+                        <input style="margin-left: 99px;" type="text" id="videoTitle" v-model="videoToUpload['title']">
+                    </div>
+                    <div>
+                        <label style="color: white;" for="videoDescription">Description:</label>
+                        <textarea style="margin-left: 30px;" id="videoDescription"
+                            v-model="videoToUpload['description']"></textarea>
+                    </div>
+                    <div>
+                        <label for="videoUpload">Upload Video:</label>
+                        <input accept="video/webm" style="margin-left: 20px;" type="file" id="videoUpload"
+                            @change="handleFileUpload">
+                    </div>
+                    <div>
+                        <button @click.prevent="uploadVideo">Submit</button>
+                    </div>
                 </form>
             </div>
         </main>
@@ -99,7 +115,7 @@
                 <!-- <li><a href="#">Trending</a></li> -->
                 <!-- <li><a href="#">Discover</a></li> -->
                 <li><a href="#">Liked</a></li>
-                <li @click="getProfile"><a href="#">Profile</a></li>
+                <li @click="getProfile(input.username)"><a href="#">Profile</a></li>
                 <li @click="getUpload"><a href="#">Upload</a></li>
                 <li @click="logout"><a href="#">Logout</a></li>
             </ul>

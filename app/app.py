@@ -12,6 +12,10 @@ import ssl #include ssl libraries
 import cgi
 import cgitb
 import settings # Our server and db settings, stored in settings.py
+from werkzeug.utils import secure_filename
+import os
+from datetime import datetime
+
 
 cgitb.enable()
 app = Flask(__name__, static_url_path='/static')
@@ -23,6 +27,7 @@ app.config['SECRET_KEY'] = settings.SECRET_KEY
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_COOKIE_NAME'] = 'peanutButter'
 app.config['SESSION_COOKIE_DOMAIN'] = settings.APP_HOST
+app.config['UPLOAD_FOLDER'] = 'static/resources/videos/'
 
 Session(app)
 
@@ -144,8 +149,7 @@ class Users(Resource):
 	def get(self):
 		response = call('getUserList')
 		responseCode = 200
-		return app.send_static_file('homepage.html')
-		# return make_response(jsonify(response), responseCode)
+		return make_response(jsonify(response), responseCode)
 
 class loggedInUser(Resource):
 	# GET: info of all users
@@ -263,6 +267,8 @@ class VidCom(Resource):
 		return make_response(jsonify(response), responsecode)
 
 class VidUse(Resource):
+	# get videos of the currently logged in users
+	# curl command: curl -X GET -b cookie-jar http://cs3103.cs.unb.ca:8017/Users/{username}/Videos
 	def get(self, username):
 		sqlargs = (username, )
 		response = call('getVideoList', True, sqlargs)
@@ -273,17 +279,23 @@ class VidUse(Resource):
 	
 
 	def post(self, username):
-		if not request.json or not 'Path' in request.json:
-			abort(400)
 		if 'username' in session and username == session['username']:
-			vPath = request.json['Path']
-			vTitle = request.json['Title']
-			vDesc = request.json['Description']
-			sqlargs = (username, vTitle, vDesc, vPath,)
-			response = call('uploadVideo', True, sqlargs)
-			responsecode = 200
-			return make_response(jsonify(response), responsecode)
-		return make_response(jsonify({"status": "fail"}), 403)
+			title = request.form['title']
+			description = request.form['description']
+			file = request.files['file']
+			filename = secure_filename(username + '_' + file.filename)
+			save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+			file.save(save_path)
+			try:
+				call('uploadVideo', True, (username, title, description, save_path,))
+				message = {"status": "success"}
+				responseCode = 200
+			except Exception as e:
+				print(e)
+				message = {"status": "fail to upload Video"}
+				responseCode = 400
+
+		return make_response(jsonify(message), responseCode)
 	
 
 
@@ -348,13 +360,13 @@ api.add_resource(loggedInUserComment, '/Users/<string:username>/Comments')
 api.add_resource(loggedInUserCommentManip, '/Users/<string:username>/Comments/<int:comment_id>')
 
 # ALI's part
-api.add_resource(VideoGen, '/videos')
-api.add_resource(VideoId, '/videos/<int:videoId>')
-api.add_resource(VidCom, '/videos/<int:videoId>/comments')
-api.add_resource(VidUse, '/users/<string:username>/videos')
-api.add_resource(VidLiked, '/users/<int:userId>/videos/liked')
-api.add_resource(ViDel, '/users/<string:username>/videos/<int:videoId>')
-api.add_resource(VidLik, '/users/<string:username>/videos/<int:videoId>/like')
+api.add_resource(VideoGen, '/Videos')
+api.add_resource(VideoId, '/Videos/<int:videoId>')
+api.add_resource(VidCom, '/Videos/<int:videoId>/comments')
+api.add_resource(VidUse, '/Users/<string:username>/Videos')
+api.add_resource(VidLiked, '/Users/<int:userId>/Videos/Liked')
+api.add_resource(ViDel, '/Users/<string:username>/Videos/<int:videoId>')
+api.add_resource(VidLik, '/Users/<string:username>/Videos/<int:videoId>/Like')
 
 
 #####################################################################################

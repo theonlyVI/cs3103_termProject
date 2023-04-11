@@ -18,15 +18,21 @@ const app = new Vue({
                 },
                 {
                     title: 'Funny Dog Video',
-                    src: '/static/resources/videos/mountains.mp4',
+                    src: '/static/resources/videos/mountains.webm',
                 },
                 {
                     title: 'Awesome Skateboarding Video',
-                    src: '/static/resources/videos/windmill.mp4',
+                    src: '/static/resources/videos/windmill.webm',
                 },
             ],
 
             currentVideo: null,
+
+            videoToUpload: {
+                title: '',
+                description: '',
+                file: null
+            },
 
             showMenu: false,
 
@@ -45,33 +51,32 @@ const app = new Vue({
             },
 
             user: {
-                name: 'John Doe',
                 bio: 'What is up?!',
                 profilePicture: '/static/resources/pfps/2947278_mihar34_pfp.png',
                 // followers: 5000,
-                videos: [
-                    {
-                        id: 1,
-                        title: 'My first video',
-                        description: 'Is this video working?,?',
-                        src: '../resources/videos/mountains.mp4',
-                        likes: 100
-                    },
-                    {
-                        id: 2,
-                        title: 'My second video',
-                        description: 'Some nature stuff I dont know..',
-                        src: '../resources/videos/ambientNature.mp4',
-                        likes: 200
-                    },
-                    {
-                        id: 3,
-                        title: 'My third video',
-                        description: 'spinninggg',
-                        src: '../resources/videos/windmill.mp4',
-                        likes: 300
-                    }
-                ]
+                videos: []
+                    // {
+                    //     id: 1,
+                    //     title: 'My first video',
+                    //     description: 'Is this video working?,?',
+                    //     src: 'static/resources/videos/mountains.webm',
+                    //     likes: 100
+                    // },
+                    // {
+                    //     id: 2,
+                    //     title: 'My second video',
+                    //     description: 'Some nature stuff I dont know..',
+                    //     src: 'static/resources/videos/ambientNature.webm',
+                    //     likes: 200
+                    // },
+                    // {
+                    //     id: 3,
+                    //     title: 'My third video',
+                    //     description: 'spinninggg',
+                    //     src: 'static/resources/videos/windmill.webm',
+                    //     likes: 300
+                    // }
+            
             }
         }
     },
@@ -82,6 +87,30 @@ const app = new Vue({
         playVideo() {
             this.currentVideo = this.videos[Math.floor(Math.random() * this.videos.length)];
         },
+        uploadVideo() {
+            let formData = new FormData();
+            formData.append('title', this.videoToUpload['title']);
+            formData.append('description', this.videoToUpload['description']);
+            formData.append('file', this.videoToUpload['file']);
+            axios
+            .post('/Users/'.concat(this.input['username']).concat('/Videos'), formData)
+            .then(response => {
+                console.log(response.data);
+            }).catch(error => {
+                console.log(error);
+            });
+        },
+        getAllUserVideos(username) {
+            axios
+                .get('Users/'.concat(username).concat('/Videos'))
+                .then(response => {
+                    this.user['videos'] = response.data;
+                    // alert(this.user['videos'][0]['videoPath']);
+                })
+        },
+        handleFileUpload(event) {
+            this.videoToUpload['file'] = event.target.files[0];
+          },
         toggleColor() {
             this.isColorful = !this.isColorful;
             this.colorFilter = this.isColorful ? 'saturate(0%) hue-rotate(0deg)' : 'grayscale(100%)';
@@ -92,7 +121,8 @@ const app = new Vue({
         toggleLike() {
             this.isLiked = !this.isLiked;
         },
-        getProfile() {
+        getProfile(username) {
+            this.getAllUserVideos(username)
             this.changePage('profile')
         },
         getHome() {
@@ -137,13 +167,17 @@ const app = new Vue({
         },
         logout() {
             axios
-            .delete(this.serviceURL+"/logout")
-            .then(response => {
-                location.reload();
-            })
-            .catch(e => {
-                console.log(e);
-            });
+                .delete(this.serviceURL + "/logout")
+                .then(response => {
+                    location.reload();
+                })
+                .catch(e => {
+                    console.log(e);
+                });
+        },
+        showDropdown() {
+            document.getElementById("myDropdown").classList.toggle("show");
         }
+        
     }
 });
