@@ -9,10 +9,14 @@ from ldap3.core.exceptions import *
 import pymysql
 import pymysql.cursors
 import ssl #include ssl libraries
-
+import cgi
+import cgitb
 import settings # Our server and db settings, stored in settings.py
 
-app = Flask(__name__)
+cgitb.enable()
+app = Flask(__name__, static_url_path='/static')
+
+
 #CORS(app)
 # Set Server-side session config: Save sessions in the local app directory.
 app.config['SECRET_KEY'] = settings.SECRET_KEY
@@ -42,7 +46,12 @@ def not_found(error):
 ####################################################################################
 # Routing: GET and POST using Flask-Session
 
-class SignIn(Resource):
+class Root(Resource):
+	def get(self):
+		# return make_response('no data')
+		return app.send_static_file('homepage.html')
+
+class LogIn(Resource):
 
 	# Set Session and return Cookie
 	# Example curl command:
@@ -76,7 +85,11 @@ class SignIn(Resource):
 				ldapConnection.open()
 				ldapConnection.start_tls()
 				ldapConnection.bind()
+				# At this point we have sucessfully authenticated.
+
 				session['username'] = request_params['username']
+				
+				# Stuff in here to find the esiting userId or create a use and get the created userId
 				response = {'status': 'success', 'user_id':'1' }
 				responseCode = 201
 				call('createUser', True, (session['username'],))
@@ -93,7 +106,7 @@ class SignIn(Resource):
 	#
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET
-	#	-b cookie-jar -k https://192.168.10.4:61340/signin
+	#	-b cookie-jar -k https://192.168.10.4:61340/login
 	def get(self):
 		if 'username' in session:
 			username = session['username']
@@ -104,7 +117,125 @@ class SignIn(Resource):
 			responseCode = 403
 
 		return make_response(jsonify(response), responseCode)
+	
+class LogOut(Resource):
+	# DELETE: Logout: remove session
+	#
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
+	#	http://info3103.cs.unb.ca:61340/logout
 
+	def delete(self):
+		if 'username' in session:
+			session.pop('username', None)
+			response = {'status': 'success'}
+			responseCode = 200
+		else:
+			response = {'status': 'success'}
+			responseCode = 204
+		return make_response(jsonify(response), responseCode)
+	
+class Users(Resource):
+	# GET: info of all users
+	#
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X GET
+	#	-b cookie-jar -k https://192.168.10.4:8017/Users
+	def get(self):
+		response = call('getUserList')
+		responseCode = 200
+		return app.send_static_file('homepage.html')
+		# return make_response(jsonify(response), responseCode)
+
+class loggedInUser(Resource):
+	# GET: info of all users
+	#
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X GET
+	#	-b cookie-jar -k https://192.168.10.4:8017/Users
+	def get(self, username):
+		if 'username' in session:
+			username = session['username']
+			response = call('getUserInfo', True, (username,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+
+		return make_response(jsonify(response), responseCode)
+
+	def delete(self, username):
+		if 'username' in session and username == session['username']:
+			response = call('deleteUser', True, (username,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+
+class loggedInUserComment(Resource):
+	# GET: info of all users
+	#
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X GET
+	#	-b cookie-jar -k https://192.168.10.4:8017/Users
+	def get(self, username):
+		if 'username' in session and username == session['username']:
+			response = call('getCommentsByUser', True, (username,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+
+		return make_response(jsonify(response), responseCode)
+
+	def post(self, username):
+		if 'username' in session and username == session['username']:
+			json_data = request.get_json()
+			response = call('writeComment', True, (username, request.args.get('video_id'), json_data.get('comment'),))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+	
+
+
+class loggedInUserCommentManip(Resource):
+
+	def get(self, username, comment_id):
+		print(session)
+		if 'username' in session and username == session['username']:
+			response = call('getCommentByIdAndUser', True, (username, comment_id,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+
+	def patch(self, username, comment_id):
+		if 'username' in session and username == session['username']:
+			json_data = request.get_json()
+			response = call('editComment', True, (username, comment_id, json_data.get('comment'),))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+	
+	def delete(self, username, comment_id):
+		if 'username' in session and username == session['username']:
+			response = call('getCommentByIdAndUser', True, (username, comment_id,))
+			call('deleteComment', True, (username, comment_id,))
+			responseCode = 200
+		else:
+			response = {'status': 'fail'}
+			responseCode = 403
+		return make_response(jsonify(response), responseCode)
+	
+
+###########################################################
+# ALI's CODE
 
 class VideoGen(Resource):
 	def get(self):
@@ -132,27 +263,29 @@ class VidCom(Resource):
 		return make_response(jsonify(response), responsecode)
 
 class VidUse(Resource):
-	def get(self, userId):
-		sqlargs = (userId, )
+	def get(self, username):
+		sqlargs = (username, )
 		response = call('getVideoList', True, sqlargs)
-		if len(response) < 0:
-			return make_response(jsonify({"status": "fail"}), 404)
+		# if len(response) < 0:
+		# 	return make_response(jsonify({"status": "fail"}), 404)
 		responsecode = 200
 		return make_response(jsonify(response), responsecode)
 	
 
-	def post(self, userId):
+	def post(self, username):
 		if not request.json or not 'Path' in request.json:
 			abort(400)
-		if 'username' in session:
+		if 'username' in session and username == session['username']:
 			vPath = request.json['Path']
 			vTitle = request.json['Title']
 			vDesc = request.json['Description']
-			sqlargs = (userId, vTitle, vDesc, vPath,)
+			sqlargs = (username, vTitle, vDesc, vPath,)
 			response = call('uploadVideo', True, sqlargs)
 			responsecode = 200
 			return make_response(jsonify(response), responsecode)
 		return make_response(jsonify({"status": "fail"}), 403)
+	
+
 
 class VidLiked(Resource):
 	def get(self, userId):
@@ -165,9 +298,9 @@ class VidLiked(Resource):
 
 
 class ViDel(Resource):
-	def delete(self, userId, videoId):
-		if 'username' in session:
-			sqlargs = (videoId, )
+	def delete(self, username, videoId):
+		if 'username' in session and username == session['username']:
+			sqlargs = (username, videoId,)
 			response = call('deleteVideo', True, sqlargs)
 			responsecode = 200
 			return make_response(jsonify(response), responsecode)
@@ -176,18 +309,18 @@ class ViDel(Resource):
 
 
 class VidLik(Resource):
-	def post(self, userId, videoId):
-		if 'username' in session:		
-			sqlargs = (userId, videoId, )
+	def post(self, username, videoId):
+		if 'username' in session and username == session['username']:		
+			sqlargs = (username, videoId, )
 			response = call('likeVideo', True, sqlargs)
 			responsecode = 200
-			return make_response(jsonify("video " + str(videoId) +  " Liked"), responsecode)
+			return make_response(jsonify("video id " + str(videoId) +  " Liked"), responsecode)
 		else:
 			return make_response(jsonify({"status": "fail"}), 403)
 	
-	def delete(self, userId, videoId):
+	def delete(self, username, videoId):
 		if 'username' in session:
-			sqlargs = (userId, videoId, )
+			sqlargs = (username, videoId, )
 			response = call('removeLike', True, sqlargs)
 			responsecode = 200
 			return make_response(jsonify("like deleted"), responsecode)
@@ -196,22 +329,37 @@ class VidLik(Resource):
 
 
 ####################################################################################
+
+
+
+
+####################################################################################
 #
 # Identify/create endpoints and endpoint objects
 #
 api = Api(app)
-api.add_resource(SignIn, '/signin')
+api.add_resource(Root,'/')
+# api.add_resource(Developer,'/dev')
+api.add_resource(LogIn, '/login')
+api.add_resource(LogOut, '/logout')
+api.add_resource(Users, '/Users')
+api.add_resource(loggedInUser, '/Users/<string:username>')
+api.add_resource(loggedInUserComment, '/Users/<string:username>/Comments')
+api.add_resource(loggedInUserCommentManip, '/Users/<string:username>/Comments/<int:comment_id>')
+
+# ALI's part
 api.add_resource(VideoGen, '/videos')
 api.add_resource(VideoId, '/videos/<int:videoId>')
 api.add_resource(VidCom, '/videos/<int:videoId>/comments')
-api.add_resource(VidUse, '/users/<int:userId>/videos')
+api.add_resource(VidUse, '/users/<string:username>/videos')
 api.add_resource(VidLiked, '/users/<int:userId>/videos/liked')
-api.add_resource(ViDel, '/users/<int:userId>/videos/<int:videoId>')
-api.add_resource(VidLik, '/users/<int:userId>/videos/<int:videoId>/like')
+api.add_resource(ViDel, '/users/<string:username>/videos/<int:videoId>')
+api.add_resource(VidLik, '/users/<string:username>/videos/<int:videoId>/like')
+
 
 #####################################################################################
 # Create database connection
-def call(proc_name: str, have_args = False, sqlArgs=()):
+def call(proc_name: str, have_args=False, sqlArgs=()):
 	try:
 		dbConnection = pymysql.connect(
 		settings.DB_HOST,
@@ -221,17 +369,18 @@ def call(proc_name: str, have_args = False, sqlArgs=()):
 		charset='utf8mb4',
 		cursorclass= pymysql.cursors.DictCursor)
 		cursor = dbConnection.cursor()
-		try:
-			if have_args:
-				cursor.callproc(proc_name, sqlArgs)
-				dbConnection.commit()
-			else:
-				cursor.callproc(proc_name) # stored procedure, no arguments
-				dbConnection.commit()
-			rows = cursor.fetchall() # get all the results
-		except pymysql.err.IntegrityError as e:
-			rows = {'error': str(e)}
+		# try:
+		if have_args:
+			cursor.callproc(proc_name, sqlArgs)
+			dbConnection.commit()
+		else:
+			cursor.callproc(proc_name) # stored procedure, no arguments
+			dbConnection.commit()
+		rows = cursor.fetchall() # get all the results
+		# except pymysql.err as e:
+		# 	rows = {'error': str(e)}
 	except Exception as e:
+		rows = {'error': str(e)}
 		abort(500) # Nondescript server error
 	finally:
 		cursor.close()

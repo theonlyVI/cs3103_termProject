@@ -1,0 +1,267 @@
+Testing:
+Test Log In: for ldap authentication, please input your UNB credentials:
+HTTP/1.0 201 CREATED
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:03 GMT; HttpOnly; Path=/
+Content-Length: 45
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:03 GMT
+
+{
+  "status": "success", 
+  "user_id": "1"
+}
+Get all users info:
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:03 GMT; HttpOnly; Path=/
+Content-Length: 373
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:03 GMT
+
+[
+  {
+    "idUser": 3, 
+    "userName": "ak"
+  }, 
+  {
+    "idUser": 11, 
+    "userName": "akothari"
+  }, 
+  {
+    "idUser": 10, 
+    "userName": "hi"
+  }, 
+  {
+    "idUser": 4, 
+    "userName": "newak"
+  }, 
+  {
+    "idUser": 2, 
+    "userName": "vanguyen2"
+  }, 
+  {
+    "idUser": 34, 
+    "userName": "vnguyen4"
+  }, 
+  {
+    "idUser": 8, 
+    "userName": "works"
+  }
+]
+Get user info
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:03 GMT; HttpOnly; Path=/
+Content-Length: 58
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:03 GMT
+
+[
+  {
+    "idUser": 34, 
+    "userName": "vnguyen4"
+  }
+]
+Getting all videos
+[
+  {
+    "idUser": 2, 
+    "idVideo": 2, 
+    "uploadDate": "2023-03-26 13:44:43", 
+    "videoDescription": "newdesc", 
+    "videoPath": "place", 
+    "videoTitle": "newtitle"
+  }, 
+  {
+    "idUser": 10, 
+    "idVideo": 5, 
+    "uploadDate": "2023-03-26 22:26:35", 
+    "videoDescription": "si", 
+    "videoPath": "abcd", 
+    "videoTitle": "workk"
+  }
+]
+Getting a single video using its ID
+[
+  {
+    "idUser": 2, 
+    "idVideo": 2, 
+    "uploadDate": "2023-03-26 13:44:43", 
+    "videoDescription": "newdesc", 
+    "videoPath": "place", 
+    "videoTitle": "newtitle"
+  }
+]
+Getting all the comments on a video
+[
+  {
+    "commentText": "hi", 
+    "idComment": 1, 
+    "idUser": 3, 
+    "idVideo": 2
+  }, 
+  {
+    "commentText": "newgood", 
+    "idComment": 2, 
+    "idUser": 4, 
+    "idVideo": 2
+  }, 
+  {
+    "commentText": "trialplswork", 
+    "idComment": 3, 
+    "idUser": 10, 
+    "idVideo": 2
+  }
+]
+Getting all the videos uploaded by a user
+[
+  {
+    "idUser": 2, 
+    "idVideo": 2, 
+    "uploadDate": "2023-03-26 13:44:43", 
+    "videoDescription": "newdesc", 
+    "videoPath": "place", 
+    "videoTitle": "newtitle"
+  }
+]
+Creating a new video
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:04 GMT; HttpOnly; Path=/
+Content-Length: 3
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:04 GMT
+
+[]
+Getting all the videos liked by a user
+[
+  {
+    "idUser": 2, 
+    "idVideo": 2, 
+    "uploadDate": "2023-03-26 13:44:43", 
+    "videoDescription": "newdesc", 
+    "videoPath": "place", 
+    "videoTitle": "newtitle"
+  }
+]
+Deleting a video by the user
+{
+  "status": "fail"
+}
+Liking a video
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:05 GMT; HttpOnly; Path=/
+Content-Length: 19
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:05 GMT
+
+"video id 2 Liked"
+Removing ones like from a video
+{
+  "status": "fail"
+}
+Write a comment:
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:05 GMT; HttpOnly; Path=/
+Content-Length: 3
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:05 GMT
+
+[]
+Get all comments by the current user
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:06 GMT; HttpOnly; Path=/
+Content-Length: 118
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:06 GMT
+
+[
+  {
+    "commentText": "I commented as vnguyen4.", 
+    "idComment": 12, 
+    "idUser": 34, 
+    "idVideo": 2
+  }
+]
+Update the user's comment:
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:13 GMT; HttpOnly; Path=/
+Content-Length: 3
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:13 GMT
+
+[]
+Get all comments by the current user
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:13 GMT; HttpOnly; Path=/
+Content-Length: 118
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:13 GMT
+
+[
+  {
+    "commentText": "I commented as vnguyen4.", 
+    "idComment": 12, 
+    "idUser": 34, 
+    "idVideo": 2
+  }
+]
+Get comment by userid and commentid
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:15 GMT; HttpOnly; Path=/
+Content-Length: 3
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:15 GMT
+
+[]
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:19 GMT; HttpOnly; Path=/
+Content-Length: 3
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:19 GMT
+
+[]
+Get all comments by the current user
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:19 GMT; HttpOnly; Path=/
+Content-Length: 118
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:19 GMT
+
+[
+  {
+    "commentText": "I commented as vnguyen4.", 
+    "idComment": 12, 
+    "idUser": 34, 
+    "idVideo": 2
+  }
+]
+Delete User:
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:19 GMT; HttpOnly; Path=/
+Content-Length: 3
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:19 GMT
+
+[]
+Log out:
+HTTP/1.0 200 OK
+Content-Type: application/json
+Set-Cookie: peanutButter=aa231e51-8338-4751-8074-21b0e718fe6a; Domain=cs3103.cs.unb.ca; Expires=Thu, 27-Apr-2023 02:44:19 GMT; HttpOnly; Path=/
+Content-Length: 26
+Server: Werkzeug/0.12.2 Python/3.6.8
+Date: Mon, 27 Mar 2023 02:44:19 GMT
+
+{
+  "status": "success"
+}

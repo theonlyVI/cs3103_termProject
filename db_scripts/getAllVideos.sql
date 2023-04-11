@@ -1,0 +1,10 @@
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS getAllVideos //
+
+CREATE PROCEDURE getAllVideos ()
+BEGIN
+SELECT * FROM Videos;
+END// 
+
+DELIMITER ;
