@@ -2,18 +2,27 @@ const app = new Vue({
     el: '#app',
     data() {
         return {
+            serviceURL: "https://cs3103.cs.unb.ca:8017",
+
+            authenticated: false,
+            schoolsData: null,
+            loggedIn: null,
+            input: {
+                username: "",
+                password: ""
+            },
             videos: [
                 {
                     title: 'Atoms',
-                    src: '../resources/videos/atoms.mp4',
+                    src: '/static/resources/videos/atoms.webm',
                 },
                 {
                     title: 'Funny Dog Video',
-                    src: '../resources/videos/mountains.mp4',
+                    src: '/static/resources/videos/mountains.mp4',
                 },
                 {
                     title: 'Awesome Skateboarding Video',
-                    src: '../resources/videos/windmill.mp4',
+                    src: '/static/resources/videos/windmill.mp4',
                 },
             ],
 
@@ -21,21 +30,24 @@ const app = new Vue({
 
             showMenu: false,
 
-            imageUrl: '../resources/icons/heart.png',
+            imageUrl: '/static/resources/icons/heart.png',
             colorFilter: 'grayscale(100%)',
             isColorful: false,
             isLiked: false,
 
-            // user info part
-            
-            isHome: false,
-            isProfile: false,
-            isLogin: true,
+            // user info part   
+
+            pages: {
+                login: true,
+                home: false,
+                profile: false,
+                upload: false,
+            },
 
             user: {
                 name: 'John Doe',
                 bio: 'What is up?!',
-                profilePicture: '../resources/pfps/2947278_mihar34_pfp.png',
+                profilePicture: '/static/resources/pfps/2947278_mihar34_pfp.png',
                 // followers: 5000,
                 videos: [
                     {
@@ -81,44 +93,57 @@ const app = new Vue({
             this.isLiked = !this.isLiked;
         },
         getProfile() {
-            this.isProfile = true;
-            this.isHome = false;
-            this.isLogin = false;
+            this.changePage('profile')
         },
         getHome() {
-            this.isHome = true;
-            this.isProfile = false;
-            this.isLogin = false;
+            this.changePage('home')
+        },
+        getUpload() {
+            this.changePage('upload')
+        },
+        changePage(selected_page) {
+            for (page in this.pages) {
+                if (selected_page == page) {
+                    this.pages[selected_page] = true;
+                }
+                else {
+                    this.pages[page] = false;
+                }
+            }
+
         },
         login() {
-            this.isLogin = false;
-            this.isHome = true;
-            this.isProfile = false;
-            // if (this.input.username != "" && this.input.password != "") {
-            //   axios
-            //   .post(this.serviceURL+"/login", {
-            //       "username": this.input.username,
-            //       "password": this.input.password
-            //   })
-            //   .then(response => {
-            //       if (response.data.status == "success") {
-            //         this.authenticated = true;
-            //         this.loggedIn = response.data.user_id;
-            //       }
-            //   })
-            //   .catch(e => {
-            //       alert("The username or password was incorrect, try again");
-            //       this.input.password = "";
-            //       console.log(e);
-            //   });
-            // } else {
-            //   alert("A username and password must be present");
-            // }
-          },
-      
-        //   fetchVideos() {
-        //     alert("do i do this one?");
-        //   }
-        
+            if (this.input.username != "" && this.input.password != "") {
+                axios
+                    .post(this.serviceURL + "/login", {
+                        "username": this.input.username,
+                        "password": this.input.password
+                    })
+                    .then(response => {
+                        if (response.data.status == "success") {
+                            this.authenticated = true;
+                            this.loggedIn = response.data.user_id;
+                            this.changePage('home')
+                        }
+                    })
+                    .catch(e => {
+                        alert("The username or password was incorrect, try again");
+                        this.input.password = "";
+                        console.log(e);
+                    });
+            } else {
+                alert("A username and password must be present");
+            }
+        },
+        logout() {
+            axios
+            .delete(this.serviceURL+"/logout")
+            .then(response => {
+                location.reload();
+            })
+            .catch(e => {
+                console.log(e);
+            });
+        }
     }
 });

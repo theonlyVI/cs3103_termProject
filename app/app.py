@@ -9,10 +9,14 @@ from ldap3.core.exceptions import *
 import pymysql
 import pymysql.cursors
 import ssl #include ssl libraries
-
+import cgi
+import cgitb
 import settings # Our server and db settings, stored in settings.py
 
-app = Flask(__name__)
+cgitb.enable()
+app = Flask(__name__, static_url_path='/static')
+
+
 #CORS(app)
 # Set Server-side session config: Save sessions in the local app directory.
 app.config['SECRET_KEY'] = settings.SECRET_KEY
@@ -41,6 +45,11 @@ def not_found(error):
 
 ####################################################################################
 # Routing: GET and POST using Flask-Session
+
+class Root(Resource):
+	def get(self):
+		# return make_response('no data')
+		return app.send_static_file('homepage.html')
 
 class LogIn(Resource):
 
@@ -78,16 +87,9 @@ class LogIn(Resource):
 				ldapConnection.bind()
 				# At this point we have sucessfully authenticated.
 
-#			if request_params['username'] == 'Rick' and request_params['password'] == 'crapcrap':
-#				session['username'] = request_params['username']
-#				response = {'status': 'success', 'user_id':'1'}
-#				responseCode = 201
-#			else:
-#				response = {'status': 'Access denied'}
-#				responseCode = 403
-
 				session['username'] = request_params['username']
-# Stuff in here to find the esiting userId or create a use and get the created userId
+				
+				# Stuff in here to find the esiting userId or create a use and get the created userId
 				response = {'status': 'success', 'user_id':'1' }
 				responseCode = 201
 				call('createUser', True, (session['username'],))
@@ -142,7 +144,8 @@ class Users(Resource):
 	def get(self):
 		response = call('getUserList')
 		responseCode = 200
-		return make_response(jsonify(response), responseCode)
+		return app.send_static_file('homepage.html')
+		# return make_response(jsonify(response), responseCode)
 
 class loggedInUser(Resource):
 	# GET: info of all users
@@ -281,6 +284,8 @@ class VidUse(Resource):
 			responsecode = 200
 			return make_response(jsonify(response), responsecode)
 		return make_response(jsonify({"status": "fail"}), 403)
+	
+
 
 class VidLiked(Resource):
 	def get(self, userId):
@@ -333,7 +338,7 @@ class VidLik(Resource):
 # Identify/create endpoints and endpoint objects
 #
 api = Api(app)
-# api.add_resource(Root,'/')
+api.add_resource(Root,'/')
 # api.add_resource(Developer,'/dev')
 api.add_resource(LogIn, '/login')
 api.add_resource(LogOut, '/logout')
