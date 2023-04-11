@@ -2,7 +2,7 @@ const app = new Vue({
     el: '#app',
     data() {
         return {
-            serviceURL: "https://cs3103.cs.unb.ca:8017",
+            serviceURL: "https://cs3103.cs.unb.ca:49005",
 
             authenticated: false,
             schoolsData: null,
