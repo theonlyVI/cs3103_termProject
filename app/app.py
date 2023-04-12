@@ -300,8 +300,8 @@ class VidUse(Resource):
 
 
 class VidLiked(Resource):
-	def get(self, userId):
-		sqlargs = (userId, )
+	def get(self, username):
+		sqlargs = (username, )
 		response = call('getLikedVideos', True, sqlargs)
 		if len(response) < 0:
 			return make_response(jsonify({"status": "fail"}), 404)
@@ -342,7 +342,15 @@ class VidLik(Resource):
 
 ####################################################################################
 
-
+class VidLikeCount(Resource):
+	def get(self, videoId):
+		try:
+			response = call('getLikeCount', True, (videoId,))
+			responseCode = 200
+		except Exception as e:
+			response = {'status': 'fail'}
+			responseCode = 400
+		return make_response(jsonify(response), responseCode)
 
 
 ####################################################################################
@@ -364,9 +372,10 @@ api.add_resource(VideoGen, '/Videos')
 api.add_resource(VideoId, '/Videos/<int:videoId>')
 api.add_resource(VidCom, '/Videos/<int:videoId>/comments')
 api.add_resource(VidUse, '/Users/<string:username>/Videos')
-api.add_resource(VidLiked, '/Users/<int:userId>/Videos/Liked')
+api.add_resource(VidLiked, '/Users/<string:username>/Videos/Liked')
 api.add_resource(ViDel, '/Users/<string:username>/Videos/<int:videoId>')
 api.add_resource(VidLik, '/Users/<string:username>/Videos/<int:videoId>/Like')
+api.add_resource(VidLikeCount, '/Videos/<int:videoId>/Like/Count')
 
 
 #####################################################################################

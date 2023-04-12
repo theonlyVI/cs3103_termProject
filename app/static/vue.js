@@ -26,6 +26,8 @@ const app = new Vue({
                 },
             ],
 
+            likedVideos: [],
+
             currentVideo: null,
 
             videoToUpload: {
@@ -55,28 +57,28 @@ const app = new Vue({
                 profilePicture: '/static/resources/pfps/2947278_mihar34_pfp.png',
                 // followers: 5000,
                 videos: []
-                    // {
-                    //     id: 1,
-                    //     title: 'My first video',
-                    //     description: 'Is this video working?,?',
-                    //     src: 'static/resources/videos/mountains.webm',
-                    //     likes: 100
-                    // },
-                    // {
-                    //     id: 2,
-                    //     title: 'My second video',
-                    //     description: 'Some nature stuff I dont know..',
-                    //     src: 'static/resources/videos/ambientNature.webm',
-                    //     likes: 200
-                    // },
-                    // {
-                    //     id: 3,
-                    //     title: 'My third video',
-                    //     description: 'spinninggg',
-                    //     src: 'static/resources/videos/windmill.webm',
-                    //     likes: 300
-                    // }
-            
+                // {
+                //     id: 1,
+                //     title: 'My first video',
+                //     description: 'Is this video working?,?',
+                //     src: 'static/resources/videos/mountains.webm',
+                //     likes: 100
+                // },
+                // {
+                //     id: 2,
+                //     title: 'My second video',
+                //     description: 'Some nature stuff I dont know..',
+                //     src: 'static/resources/videos/ambientNature.webm',
+                //     likes: 200
+                // },
+                // {
+                //     id: 3,
+                //     title: 'My third video',
+                //     description: 'spinninggg',
+                //     src: 'static/resources/videos/windmill.webm',
+                //     likes: 300
+                // }
+
             }
         }
     },
@@ -93,12 +95,12 @@ const app = new Vue({
             formData.append('description', this.videoToUpload['description']);
             formData.append('file', this.videoToUpload['file']);
             axios
-            .post('/Users/'.concat(this.input['username']).concat('/Videos'), formData)
-            .then(response => {
-                console.log(response.data);
-            }).catch(error => {
-                console.log(error);
-            });
+                .post('/Users/'.concat(this.input['username']).concat('/Videos'), formData)
+                .then(response => {
+                    console.log(response.data);
+                }).catch(error => {
+                    console.log(error);
+                });
         },
         getAllUserVideos(username) {
             axios
@@ -106,20 +108,34 @@ const app = new Vue({
                 .then(response => {
                     this.user['videos'] = response.data;
                     // alert(this.user['videos'][0]['videoPath']);
-                })
+                    for (let i = 0; i < this.user['videos'].length; i++) {
+                        video = this.user['videos'][i];
+                        axios
+                            .get('Videos/'.concat(video['idVideo']).concat('/Like/Count'))
+                            .then(likeReponse => {
+                                this.user['videos'][i]['likeCount'] = likeReponse.data[0]['likeCount']
+                                console.log(this.user['videos'][i]['likeCount'])
+                            })
+                    }
+                });
+            
         },
         handleFileUpload(event) {
             this.videoToUpload['file'] = event.target.files[0];
-          },
-        toggleColor() {
-            this.isColorful = !this.isColorful;
-            this.colorFilter = this.isColorful ? 'saturate(0%) hue-rotate(0deg)' : 'grayscale(100%)';
         },
         setCurrentVideo() {
             this.currentVideo = this.videos[Math.floor(Math.random() * this.videos.length)];
         },
         toggleLike() {
             this.isLiked = !this.isLiked;
+        },
+        likeVideo(videoId) {
+            axios
+                .post('/Users/'.concat(this.input['username']).concat('/Videos/').concat(videoId).concat('/Like'))
+        },
+        unlikeVideo(videoId) {
+            axios
+                .delete('/Users/'.concat(this.input['username']).concat('/Videos/').concat(videoId).concat('/Like'))
         },
         getProfile(username) {
             this.getAllUserVideos(username)
@@ -140,6 +156,11 @@ const app = new Vue({
                     this.pages[page] = false;
                 }
             }
+            axios
+                .get('/Users/'.concat(this.input['username']).concat('/Videos/Liked'))
+                .then(response => {
+                    this.likedVideos = response.data;
+                })
 
         },
         login() {
@@ -153,7 +174,7 @@ const app = new Vue({
                         if (response.data.status == "success") {
                             this.authenticated = true;
                             this.loggedIn = response.data.user_id;
-                            this.changePage('home')
+                            this.changePage('home');
                         }
                     })
                     .catch(e => {
@@ -179,5 +200,6 @@ const app = new Vue({
             document.getElementById("myDropdown").classList.toggle("show");
         }
         
+
     }
 });
