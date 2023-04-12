@@ -33,7 +33,7 @@ const app = new Vue({
                 'id': null,
                 'title': null,
                 'description': null,
-                
+
             },
 
             currentVideo: null,
@@ -58,7 +58,8 @@ const app = new Vue({
                 home: false,
                 profile: false,
                 upload: false,
-                edit: false
+                edit: false,
+                liked: false
             },
 
             user: {
@@ -123,7 +124,7 @@ const app = new Vue({
                         this.getLikeCountVideo(video['idVideo'])
                     }
                 });
-            
+
         },
         handleFileUpload(event) {
             this.videoToUpload['file'] = event.target.files[0];
@@ -137,11 +138,16 @@ const app = new Vue({
                 .then(response => {
                     this.likedVideos = response.data
                     this.likedVideoIds = []
+                    console.log(this.likedVideos)
                     for (let i = 0; i < this.likedVideos.length; i++) {
                         this.likedVideoIds.push(this.likedVideos[i]['idVideo'])
                     }
                     // console.log(this.likedVideoIds)
                 })
+        },
+        getLikedPage() {
+            this.getLikedVideos()
+            this.changePage('liked')
         },
         toggleLike(videoId) {
             if (this.likedVideoIds.includes(videoId)) {
@@ -195,7 +201,19 @@ const app = new Vue({
                 }).catch(error => {
                     console.log(error)
                 })
-            
+
+        },
+        deleteVideo(videoId) {
+            if (confirm("Do you really want to delete this video?")) {
+                axios
+                    .delete('/Users/'.concat(this.input['username']).concat('/Videos/').concat(videoId))
+                    .then(response => {
+                        this.getProfile(input['username'])
+                    }).catch(error => {
+                        console.log(error)
+                    })
+
+            }
         },
         getHome() {
             this.changePage('home')

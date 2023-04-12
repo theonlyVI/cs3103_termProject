@@ -386,7 +386,7 @@ api.add_resource(loggedInUserCommentManip, '/Users/<string:username>/Comments/<i
 # ALI's part
 api.add_resource(VideoGen, '/Videos')
 api.add_resource(VideoId, '/Videos/<int:videoId>')
-api.add_resource(VidCom, '/Videos/<int:videoId>/comments')
+api.add_resource(VidCom, '/Videos/<int:videoId>/Comments')
 api.add_resource(VidUse, '/Users/<string:username>/Videos')
 api.add_resource(VidLiked, '/Users/<string:username>/Videos/Liked')
 api.add_resource(ViDel, '/Users/<string:username>/Videos/<int:videoId>')

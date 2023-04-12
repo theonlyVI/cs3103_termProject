@@ -54,6 +54,35 @@
                 </div>
             </div>
 
+            <div v-if="pages['liked']" class="like-page">
+                <div class="user-profile">
+                    <div class="video-grid">
+                        <div v-for="video in likedVideos" :key="video.idVideo" class="video-card">
+                            <p></p>
+                            <p></p>
+                            <p></p>
+                            <div class="video-info">
+                                <h2>{{ video.videoTitle }}</h2>
+                                <p>{{ video.videoDescription }}</p>
+                            </div>
+                            <video width="300" controls>
+                                <source :src="video.videoPath" type="video/webm">
+                            </video>
+                            <div class=like-and-edit style="display: flex; align-items: flex-end;">
+                                <div class="like-button">
+                                    <div class="heart-bg">
+                                        <div class="heart-icon"
+                                            :class="{ 'liked': likedVideoIds.includes(video.idVideo) }"
+                                            @click="toggleLike(video.idVideo)" @click="getLikedPage"></div>
+                                    </div>
+                                    <div class="likes-amount">{{ likeCounts[video.idVideo] }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div v-if="pages['profile']" class="User-profile">
                 <div class="user-profile">
                     <div class="profile-header">
@@ -73,7 +102,7 @@
                                 <h2>{{ video.videoTitle }}</h2>
                                 <p>{{ video.videoDescription }}</p>
                             </div>
-                            <video width="400" controls>
+                            <video width="300" controls>
                                 <source :src="video.videoPath" type="video/webm">
                             </video>
                             <div class=like-and-edit style="display: flex; align-items: flex-end;">
@@ -89,8 +118,11 @@
                                 <div class="edit-button">
                                     <button class="dropdown-button">Actions</button>
                                     <div class="dropdown-menu">
-                                        <a href="#" @click="getEdit(video.idVideo, video.videoTitle, video.videoDescription)" class="dropdown-item">Edit</a>
-                                        <a href="#" style="color: red;" class="dropdown-item">Delete</a>
+                                        <a href="#"
+                                            @click="getEdit(video.idVideo, video.videoTitle, video.videoDescription)"
+                                            class="dropdown-item">Edit</a>
+                                        <a href="#" @click="deleteVideo(video.idVideo)" style="color: red;"
+                                            class="dropdown-item">Delete</a>
                                     </div>
                                 </div>
                             </div>
@@ -103,7 +135,8 @@
                 <form class="edit-video-form" style="display:flex">
                     <div>
                         <label style="color:white;" for="videoTitle">Title:</label>
-                        <input required style="margin-left: 90px;" type="text" id="videoTitle" v-model="videoToEdit['title']">
+                        <input required style="margin-left: 90px;" type="text" id="videoTitle"
+                            v-model="videoToEdit['title']">
                     </div>
                     <div>
                         <label style="color: white;" for="videoDescription">Description:</label>
@@ -123,7 +156,8 @@
                 <form class="upload-video-form">
                     <div>
                         <label for="videoTitle">Title:</label>
-                        <input required style="margin-left: 99px;" type="text" id="videoTitle" v-model="videoToUpload['title']">
+                        <input required style="margin-left: 99px;" type="text" id="videoTitle"
+                            v-model="videoToUpload['title']">
                     </div>
                     <div>
                         <label style="color: white;" for="videoDescription">Description:</label>
@@ -149,7 +183,7 @@
                 <li @click="getHome"><a href="#">Home</a></li>
                 <!-- <li><a href="#">Trending</a></li> -->
                 <!-- <li><a href="#">Discover</a></li> -->
-                <li><a href="#">Liked</a></li>
+                <li @click="getLikedPage"><a href="#">Liked</a></li>
                 <li @click="getProfile(input.username)"><a href="#">Profile</a></li>
                 <li @click="getUpload"><a href="#">Upload</a></li>
                 <li @click="logout"><a href="#">Logout</a></li>
