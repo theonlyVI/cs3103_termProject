@@ -5,7 +5,7 @@
     <title>Minute</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <link rel="stylesheet" href="/static/style.css">
+
 </head>
 
 <body>
@@ -19,9 +19,12 @@
                     <h1>MINUTES<sup><small>TM</small></sup></h1>
                     <p><em>Minutes of Entertainment!</em></p>
                     <div class="form-group text-center">
-                        <input class="col-4 mx-auto form-control" type="text" name="username" v-model="input.username"placeholder="Username"/>
-                        <input class="col-4 mx-auto form-control" type="password" name="password" v-model="input.password" placeholder="Password"/>
-                        <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()">Login</button>
+                        <input class="col-4 mx-auto form-control" type="text" name="username" v-model="input.username"
+                            placeholder="Username" />
+                        <input class="col-4 mx-auto form-control" type="password" name="password"
+                            v-model="input.password" placeholder="Password" />
+                        <button class="col-4 btn btn-outline-success" type="button"
+                            v-on:click="letItBegin()">Login</button>
                     </div>
                     <!-- <div v-else class="text-center">
                         <button type="button" class="btn btn-outline-primary" v-on:click="fetchVideos()">Get
@@ -32,62 +35,161 @@
 
             <div v-if="pages['home']" class="Home-page">
                 <div v-if="pages['home']" class="horizontal-container">
-                    <button class="image-button" @click="playVideo()">
+                    <button class="image-button" @click="playVideo(), fetchComments(currentVideo.idVideo)">
                         <img src="/static/resources/icons/left_arrow.png" alt="Image 1" width="20%">
                     </button>
                     <div id="video-player">
-                        <video controls :src="currentVideo.src"></video>
+                        <video controls :src="currentVideo.videoPath"></video>
                     </div>
-                    <button class="image-button" @click="playVideo()">
+                    <button class="image-button" @click="playVideo(), fetchComments(currentVideo.idVideo)">
                         <img src="/static/resources/icons/right_arrow.png" alt="Image 1" width="20%">
                     </button>
                 </div>
-                <div class="like-button">
+                <div v-if="currentVideo.videoTitle != 'xyz'" class="like-button">
                     <div class="heart-bg">
                         <div class="heart-icon" :class="{ 'liked': isLiked }" @click="toggleLike"></div>
                     </div>
                     <div class="likes-amount">7</div>
                 </div>
+                <div v-if="currentVideo.videoTitle == 'xyz'">
+                    <h1>Welcome to MINUTES, go next by arrow</h1>
+                </div>
+                <div
+                    v-if="commentsData != null && currentVideo.videoTitle!='xyz' && Object.keys(commentsData).length == 0">
+                    <h1>NO COMMENTS</h1>
+                </div>
             </div>
+            <div v-if="commentsData != null" id="commentsList">
+                <ul class="list-group">
+                    <div v-for="comment in commentsData">
+                        <p></p>
+                        <li class="list-group-item col-7 mx-auto">
+                            <div class="d-flex w-100 justify-content-between" id="comment">
+                                {{comment.commentText}}
+                                <div v-if="currentUser.idUser == comment.idUser" class="btn-group-xs">
+                                    <button class="utilityBtn text-success"
+                                        @click="selectComment(comment.idComment)">✎</button>
+                                    <button class="utilityBtn text-danger" @click="deleteComment(comment.idComment)">x</button>
+                                </div>
+                            </div>
+                        </li>
+                    </div>
+                </ul>
+                <modal v-if="iseditComment" @close="hideModal">
+                    <!--
+                you can use custom content here to overwrite
+                default content
+              -->
+                    <div slot="header" class="modal-header">
+                        Edit Comment
+                    </div>
+                    <div slot="body">
+                        <div class="form-group col-6">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text  modal-prepend">Comment Body</span>
+                                </div>
+                                <input class="col-8 form-control" type="text" id="schoolName" v-model="selectedComment.commentText"
+                                    placeholder="Comment Body" />
+                            </div>
+                        </div>
+                    </div>
+                    <div slot="footer">
+                        <button type="button" class="btn btn-secondary" v-on:click="hideModal()">Close</button>
+                    </div>
+                </modal>
+                <!-- template for the modal component -->
+                <script type="text/x-template" id="modal-template">
+              <transition name="modal">
+                <div class="modal-backdrop">
+                <div class="modal">
+                  <header class="modal-header">
+                    <slot name="header">
+                      This is the default tile!
+                      <button type="button" class="btn-close" @click="hideModal()">
+                        x
+                      </button>
+                    </slot>
+                  </header>
+                  <section class="modal-body">
+                    <slot name="body">
+                      I'm the default body!
+                    </slot>
+                   </section>
+                   <footer class="modal-footer">
+                      <slot name="footer">
+                        I'm the default footer!
+                        <button type="button" class="btn-green" @click="hideModal()">
+                          Close me!
+                        </button>
+                      </slot>
+                    </footer>
+                  </div>
+                </div>
+              </transition>
+                </script>
+                <form ref="anyname" @submit="addComments">
+                    <textarea id="commentBody" v-model="uploadComment.commentBody"></textarea>
+                    <button @click.prevent="addComments(currentVideo.idVideo)">Write Comment</button>
+                </form>
+
+            </div>
+
+
 
             <div v-if="pages['profile']" class="User-profile">
                 <div class="user-profile">
                     <div class="profile-header">
                         <img class="profile-picture" :src="user.profilePicture" alt="Profile Picture">
                         <div class="profile-info">
-                            <h1>{{ user.name }}</h1>
+                            <h1>{{ input.username }}</h1>
                             <p>{{ user.bio }}</p>
                             <!-- <button class="follow-button">{{ user.followers }} Followers</button> -->
                         </div>
                     </div>
                     <div class="video-grid">
-                        <div v-for="video in user.videos" :key="video.id" class="video-card">
+                        <div v-for="video in user.videos" :key="video.idVideo" class="video-card">
                             <p></p>
                             <p></p>
                             <p></p>
                             <div class="video-info">
-                                <h2>{{ video.title }}</h2>
-                                <p>{{ video.description }}</p>
+                                <h2>{{ video.videoTitle }}</h2>
+                                <p>{{ video.videoDescription }}</p>
                             </div>
                             <video width="400" controls>
-                                <source :src="video.src" type="video/mp4">
+                                <source :src="video.videoPath" type="video/webm">
                             </video>
                             <div class="like-button">
                                 <div class="heart-bg">
-                                    <div class="heart-icon" :class="{ 'liked': isLiked }" @click="toggleLike"></div>
+                                    <div class="heart-icon" :id="video.idVideo" :class="{ 'liked': isLiked }"
+                                        @click="toggleLike"></div>
                                 </div>
-                                <div class="likes-amount">{{ video.likes }}</div>
+                                <div class="likes-amount">{{ video.likeCount }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div v-if="pages['upload']" class="UploadVideo">
-                <form>
-                    <label for="video">Select a video file to upload:</label>
-                    <input type="file" id="video" name="video" ref="videoInput">
-                    <button type="submit" @click.prevent="uploadVideo">Upload</button>
+            <div v-if="pages['upload']" class="upload-video">
+                <form class="upload-video-form">
+                    <div>
+                        <label for="videoTitle">Title:</label>
+                        <input style="margin-left: 99px;" type="text" id="videoTitle" v-model="videoToUpload['title']">
+                    </div>
+                    <div>
+                        <label style="color: white;" for="videoDescription">Description:</label>
+                        <textarea style="margin-left: 30px;" id="videoDescription"
+                            v-model="videoToUpload['description']"></textarea>
+                    </div>
+                    <div>
+                        <label for="videoUpload">Upload Video:</label>
+                        <input accept="video/webm" style="margin-left: 20px;" type="file" id="videoUpload"
+                            @change="handleFileUpload">
+                    </div>
+                    <div>
+                        <button @click.prevent="uploadVideo">Submit</button>
+                    </div>
                 </form>
             </div>
         </main>
@@ -99,18 +201,21 @@
                 <!-- <li><a href="#">Trending</a></li> -->
                 <!-- <li><a href="#">Discover</a></li> -->
                 <li><a href="#">Liked</a></li>
-                <li @click="getProfile"><a href="#">Profile</a></li>
+                <li @click="getProfile(input.username)"><a href="#">Profile</a></li>
                 <li @click="getUpload"><a href="#">Upload</a></li>
                 <li @click="logout"><a href="#">Logout</a></li>
             </ul>
         </div>
     </div>
+    
     <script src="/static/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+
 </body>
 
 </html>

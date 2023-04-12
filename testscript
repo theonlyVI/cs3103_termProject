@@ -19,38 +19,38 @@ curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k https://cs31
 
 # ali's part
 echo "Getting all videos"
-curl -k https://cs3103.cs.unb.ca:8017/videos
+curl -k https://cs3103.cs.unb.ca:8017/Videos
 
 
 echo "Getting a single video using its ID"
-curl -k https://cs3103.cs.unb.ca:8017/videos/2
+curl -k https://cs3103.cs.unb.ca:8017/Videos/2
 
 
 echo "Getting all the comments on a video"
-curl -k https://cs3103.cs.unb.ca:8017/videos/2/comments
+curl -k https://cs3103.cs.unb.ca:8017/Videos/2/Comments
 
 
 echo "Getting all the videos uploaded by a user"
-curl -k https://cs3103.cs.unb.ca:8017/users/vanguyen2/videos
+curl -k https://cs3103.cs.unb.ca:8017/Users/vanguyen2/Videos
 
 echo "Creating a new video"
 curl -k -b cookie-jar -i -X POST -H "Content-Type: application/json" -d '{"Path": "abcd", "Title": "workk", "Description": "si"}' https://cs3103.cs.unb.ca:8017/users/$username/videos
 
 
 echo "Getting all the videos liked by a user"
-curl -k https://cs3103.cs.unb.ca:8017/users/3/videos/liked
+curl -k https://cs3103.cs.unb.ca:8017/users/3/Videos/Liked
 
 
 echo "Deleting a video by the user"
-curl -k -X DELETE https://cs3103.cs.unb.ca:8017/users/$username/videos/5
+curl -k -X DELETE https://cs3103.cs.unb.ca:8017/Users/$username/Videos/5
 
 
 echo "Liking a video"
-curl -k -b cookie-jar -i -X POST https://cs3103.cs.unb.ca:8017/users/$username/videos/2/like
+curl -k -b cookie-jar -i -X POST https://cs3103.cs.unb.ca:8017/Users/$username/Videos/2/like
 
 
 echo "Removing ones like from a video"
-curl -k -X DELETE https://cs3103.cs.unb.ca:8017/users/$username/videos/2/like
+curl -k -X DELETE https://cs3103.cs.unb.ca:8017/Users/$username/Videos/2/Like
 ###
 
 echo "Write a comment":
