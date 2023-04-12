@@ -27,8 +27,12 @@ const app = new Vue({
             ],
 
             likedVideos: [],
+            likedVideoIds: [],
+
+            likeCounts: {},
 
             currentVideo: null,
+            tempLikeCount: null, // for holding the like value
 
             videoToUpload: {
                 title: '',
@@ -97,7 +101,7 @@ const app = new Vue({
             axios
                 .post('/Users/'.concat(this.input['username']).concat('/Videos'), formData)
                 .then(response => {
-                    console.log(response.data);
+                    console.log(response.data)
                 }).catch(error => {
                     console.log(error);
                 });
@@ -110,12 +114,7 @@ const app = new Vue({
                     // alert(this.user['videos'][0]['videoPath']);
                     for (let i = 0; i < this.user['videos'].length; i++) {
                         video = this.user['videos'][i];
-                        axios
-                            .get('Videos/'.concat(video['idVideo']).concat('/Like/Count'))
-                            .then(likeReponse => {
-                                this.user['videos'][i]['likeCount'] = likeReponse.data[0]['likeCount']
-                                console.log(this.user['videos'][i]['likeCount'])
-                            })
+                        this.getLikeCountVideo(video['idVideo'])
                     }
                 });
             
@@ -126,16 +125,46 @@ const app = new Vue({
         setCurrentVideo() {
             this.currentVideo = this.videos[Math.floor(Math.random() * this.videos.length)];
         },
-        toggleLike() {
-            this.isLiked = !this.isLiked;
+        getLikedVideos() {
+            axios
+                .get('/Users/'.concat(this.input['username']).concat('/Videos/Liked'))
+                .then(response => {
+                    this.likedVideos = response.data
+                    this.likedVideoIds = []
+                    for (let i = 0; i < this.likedVideos.length; i++) {
+                        this.likedVideoIds.push(this.likedVideos[i]['idVideo'])
+                    }
+                    // console.log(this.likedVideoIds)
+                })
+        },
+        toggleLike(videoId) {
+            if (this.likedVideoIds.includes(videoId)) {
+                this.unlikeVideo(videoId)
+            } else {
+                this.likeVideo(videoId)
+            }
+            this.getLikeCountVideo(videoId)
+            console.log(this.likeCounts)
+        },
+        getLikeCountVideo(videoId) {
+            axios
+                .get('Videos/'.concat(videoId).concat('/Like/Count'))
+                .then(response => {
+                    this.$set(this.likeCounts, videoId, response.data[0]['likeCount'])
+                    console.log(this.likeCounts[videoId])
+                }).catch(error => {
+                    console.log(error)
+                })
         },
         likeVideo(videoId) {
             axios
                 .post('/Users/'.concat(this.input['username']).concat('/Videos/').concat(videoId).concat('/Like'))
+            this.getLikedVideos()
         },
         unlikeVideo(videoId) {
             axios
                 .delete('/Users/'.concat(this.input['username']).concat('/Videos/').concat(videoId).concat('/Like'))
+            this.getLikedVideos()
         },
         getProfile(username) {
             this.getAllUserVideos(username)
@@ -156,12 +185,7 @@ const app = new Vue({
                     this.pages[page] = false;
                 }
             }
-            axios
-                .get('/Users/'.concat(this.input['username']).concat('/Videos/Liked'))
-                .then(response => {
-                    this.likedVideos = response.data;
-                })
-
+            this.getLikedVideos()
         },
         login() {
             if (this.input.username != "" && this.input.password != "") {

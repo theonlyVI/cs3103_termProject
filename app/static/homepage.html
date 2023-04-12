@@ -76,9 +76,9 @@
                             </video>
                             <div class="like-button">
                                 <div class="heart-bg">
-                                    <div class="heart-icon" :id="video.idVideo" :class="{ 'liked': isLiked }" @click="toggleLike"></div>
+                                    <div class="heart-icon" :class="{ 'liked': likedVideoIds.includes(video.idVideo) }" @click="toggleLike(video.idVideo)"></div>
                                 </div>
-                                <div class="likes-amount">{{ video.likeCount }}</div>
+                                <div class="likes-amount">{{ likeCounts[video.idVideo] }}</div>
                             </div>
                         </div>
                     </div>
