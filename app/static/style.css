@@ -281,85 +281,43 @@ button[type="submit"] {
     cursor: pointer;
   } */
 
-/* shoutout to https://codepen.io/danimerida2000/pen/wVXegX */
-/* three-dot drop down button */
-.showLeft {
-  background-color: white !important;
-  border: 1px solid white !important;
-  text-shadow: white !important;
-  color: black !important;
-  padding: 10px;
+/* drop down button */
+.edit-button {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 10px;
+  margin-bottom: 6px;
 }
 
-.icons li {
-  background: none repeat scroll 0 0 black;
-  height: 7px;
-  width: 7px;
-  line-height: 0;
-  list-style: none outside none;
-  margin-right: 15px;
-  margin-top: 3px;
-  vertical-align: top;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.btn-left {
-  left: 0.4em;
-}
-
-.btn-right {
-  right: 0.4em;
-}
-
-.btn-left,
-.btn-right {
-  position: absolute;
-  top: 0.24em;
-}
-
-.dropbtn {
-  background-color: #4caf50;
-  position: fixed;
+.dropdown-button {
+  background-color: #000000;
   color: white;
-  font-size: 16px;
+  padding: 0px;
   border: none;
   cursor: pointer;
 }
 
-.dropbtn:hover,
-.dropbtn:focus {
-  background-color: #3e8e41;
-}
-
-.dropdown {
+.dropdown-menu {
   position: absolute;
-  display: inline-block;
-  right: 0.4em;
-}
-
-.dropdown-content {
-  display: none;
-  position: relative;
-  margin-top: 60px;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  overflow: auto;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  min-width: 160px;
+  display: none;
 }
 
-.dropdown-content a {
+.dropdown-menu a {
   color: black;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
 }
 
-.dropdown a:hover {
-  background-color: #f1f1f1;
+.dropdown-menu a:hover {
+  background-color: #e6e0e0;
 }
 
-.show {
+.edit-button:hover .dropdown-menu {
   display: block;
 }

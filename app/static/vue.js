@@ -28,11 +28,15 @@ const app = new Vue({
 
             likedVideos: [],
             likedVideoIds: [],
-
             likeCounts: {},
+            videoToEdit: {
+                'id': null,
+                'title': null,
+                'description': null,
+                
+            },
 
             currentVideo: null,
-            tempLikeCount: null, // for holding the like value
 
             videoToUpload: {
                 title: '',
@@ -54,6 +58,7 @@ const app = new Vue({
                 home: false,
                 profile: false,
                 upload: false,
+                edit: false
             },
 
             user: {
@@ -102,6 +107,7 @@ const app = new Vue({
                 .post('/Users/'.concat(this.input['username']).concat('/Videos'), formData)
                 .then(response => {
                     console.log(response.data)
+                    this.getProfile(this.input['username'])
                 }).catch(error => {
                     console.log(error);
                 });
@@ -170,6 +176,27 @@ const app = new Vue({
             this.getAllUserVideos(username)
             this.changePage('profile')
         },
+        // Set the videoEditId to the video id of the video to be edited
+        getEdit(videoId) {
+            this.videoToEdit['id'] = videoId
+            this.videoToEdit['title'] = null
+            this.videoToEdit['description'] = null
+            this.changePage('edit')
+        },
+        editVideo() {
+            let formData = new FormData();
+            formData.append('title', this.videoToEdit['title']);
+            formData.append('description', this.videoToEdit['description']);
+
+            axios
+                .put('/Users/'.concat(this.input['username']).concat('/Videos/').concat(this.videoToEdit['id']), formData)
+                .then(response => {
+                    this.getProfile(this.input['username'])
+                }).catch(error => {
+                    console.log(error)
+                })
+            
+        },
         getHome() {
             this.changePage('home')
         },
@@ -220,10 +247,6 @@ const app = new Vue({
                     console.log(e);
                 });
         },
-        showDropdown() {
-            document.getElementById("myDropdown").classList.toggle("show");
-        }
-        
 
     }
 });

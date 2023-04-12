@@ -21,8 +21,10 @@
                     <div class="form-group text-center">
                         <input class="col-4 mx-auto form-control" type="text" name="username" v-model="input.username"
                             placeholder="Username" />
+                        <p></p>
                         <input class="col-4 mx-auto form-control" type="password" name="password"
                             v-model="input.password" placeholder="Password" />
+                        <p></p>
                         <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()">Login</button>
                     </div>
                     <!-- <div v-else class="text-center">
@@ -74,26 +76,58 @@
                             <video width="400" controls>
                                 <source :src="video.videoPath" type="video/webm">
                             </video>
-                            <div class="like-button">
-                                <div class="heart-bg">
-                                    <div class="heart-icon" :class="{ 'liked': likedVideoIds.includes(video.idVideo) }" @click="toggleLike(video.idVideo)"></div>
+                            <div class=like-and-edit style="display: flex; align-items: flex-end;">
+                                <div class="like-button">
+                                    <div class="heart-bg">
+                                        <div class="heart-icon"
+                                            :class="{ 'liked': likedVideoIds.includes(video.idVideo) }"
+                                            @click="toggleLike(video.idVideo)"></div>
+                                    </div>
+                                    <div class="likes-amount">{{ likeCounts[video.idVideo] }}</div>
                                 </div>
-                                <div class="likes-amount">{{ likeCounts[video.idVideo] }}</div>
+
+                                <div class="edit-button">
+                                    <button class="dropdown-button">Actions</button>
+                                    <div class="dropdown-menu">
+                                        <a href="#" @click="getEdit(video.idVideo, video.videoTitle, video.videoDescription)" class="dropdown-item">Edit</a>
+                                        <a href="#" style="color: red;" class="dropdown-item">Delete</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div v-if="pages['edit']" class="edit-video">
+                <form class="edit-video-form" style="display:flex">
+                    <div>
+                        <label style="color:white;" for="videoTitle">Title:</label>
+                        <input required style="margin-left: 90px;" type="text" id="videoTitle" v-model="videoToEdit['title']">
+                    </div>
+                    <div>
+                        <label style="color: white;" for="videoDescription">Description:</label>
+                        <textarea required style="margin-left: 30px;" id="videoDescription"
+                            v-model="videoToEdit['description']"></textarea>
+                    </div>
+                    <div>
+                        <p></p>
+                        <p></p>
+                        <button @click.prevent="editVideo">Submit</button>
+                        <button @click="getProfile(input.username)">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
             <div v-if="pages['upload']" class="upload-video">
                 <form class="upload-video-form">
                     <div>
                         <label for="videoTitle">Title:</label>
-                        <input style="margin-left: 99px;" type="text" id="videoTitle" v-model="videoToUpload['title']">
+                        <input required style="margin-left: 99px;" type="text" id="videoTitle" v-model="videoToUpload['title']">
                     </div>
                     <div>
                         <label style="color: white;" for="videoDescription">Description:</label>
-                        <textarea style="margin-left: 30px;" id="videoDescription"
+                        <textarea required style="margin-left: 30px;" id="videoDescription"
                             v-model="videoToUpload['description']"></textarea>
                     </div>
                     <div>
@@ -103,6 +137,7 @@
                     </div>
                     <div>
                         <button @click.prevent="uploadVideo">Submit</button>
+                        <button @click="getProfile(input.username)">Cancel</button>
                     </div>
                 </form>
             </div>

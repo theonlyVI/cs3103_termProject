@@ -318,6 +318,22 @@ class ViDel(Resource):
 			return make_response(jsonify(response), responsecode)
 		else:
 			return make_response(jsonify({"status": "fail"}), 403)
+	
+	def put(self, username, videoId):
+		if 'username' in session and username == session['username']:
+			title = request.form['title']
+			description = request.form['description']
+			try:
+				response = call('changeVideoTitleAndDescription', True, (videoId, title, description,))
+				message = {"status": "success"}
+				responseCode = 200
+			except Exception as e:
+				print(e)
+				message = {"status": "fail to upload Video"}
+				responseCode = 400
+			return make_response(jsonify(message), responseCode)
+			
+
 
 
 class VidLik(Resource):

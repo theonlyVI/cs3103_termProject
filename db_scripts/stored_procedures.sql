@@ -65,6 +65,17 @@ DELIMITER ;
 
 
 DELIMITER //
+DROP PROCEDURE IF EXISTS changeVideoTitleAndDescription //
+
+CREATE PROCEDURE changeVideoTitleAndDescription(IN videoIdIn INT, IN titleIn VARCHAR(255), IN vidDesIn VARCHAR(255))
+BEGIN
+  UPDATE Videos SET videoTitle = titleIn, videoDescription = vidDesIn WHERE idVideo = videoIdIn; 
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
 DROP PROCEDURE IF EXISTS editComment //
 
 CREATE PROCEDURE editComment(IN uName VARCHAR(255), IN commentIdIn INT,IN commentIn VARCHAR(255))
