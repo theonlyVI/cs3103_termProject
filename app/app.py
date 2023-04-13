@@ -312,6 +312,8 @@ class ViDel(Resource):
 		if 'username' in session and username == session['username']:
 			sqlargs = (username, videoId,)
 			try:
+				videoToDelete = call('getVideo', True, (videoId,))[0]['videoPath']
+				os.remove(videoToDelete)
 				response = call('deleteVideo', True, sqlargs)
 				responsecode = 200
 			except Exception as e:

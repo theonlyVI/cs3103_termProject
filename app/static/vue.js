@@ -113,6 +113,7 @@ const app = new Vue({
     },
     methods: {
         playVideo() {
+            this.fetchVideos();
             this.currentVideo = this.videos[Math.floor(Math.random() * this.videos.length)];
             // console.log(this.getLikeCountVideo(this.currentVideo['idVideo']))
             this.getLikeCountVideo(this.currentVideo['idVideo'])
@@ -258,6 +259,7 @@ const app = new Vue({
             this.changePage('upload')
         },
         changePage(selected_page) {
+            this.fetchVideos();
             for (page in this.pages) {
                 if (selected_page == page) {
                     this.pages[selected_page] = true;
