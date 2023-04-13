@@ -195,8 +195,7 @@ class loggedInUserComment(Resource):
 
 	def post(self, username):
 		if 'username' in session and username == session['username']:
-			json_data = request.get_json()
-			response = call('writeComment', True, (username, request.args.get('video_id'), json_data.get('comment'),))
+			response = call('writeComment', True, (username, request.args.get('video_id'), request.form['comment'],))
 			responseCode = 200
 		else:
 			response = {'status': 'fail'}
@@ -219,8 +218,7 @@ class loggedInUserCommentManip(Resource):
 
 	def patch(self, username, comment_id):
 		if 'username' in session and username == session['username']:
-			json_data = request.get_json()
-			response = call('editComment', True, (username, comment_id, json_data.get('comment'),))
+			response = call('editComment', True, (username, comment_id, request.form['comment'],))
 			responseCode = 200
 		else:
 			response = {'status': 'fail'}

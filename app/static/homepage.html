@@ -25,7 +25,8 @@
                         <input class="col-4 mx-auto form-control" type="password" name="password"
                             v-model="input.password" placeholder="Password" />
                         <p></p>
-                        <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()">Login</button>
+                        <button class="col-4 btn btn-outline-success" type="button"
+                            v-on:click="letItBegin()">Login</button>
                     </div>
                     <!-- <div v-else class="text-center">
                         <button type="button" class="btn btn-outline-primary" v-on:click="fetchVideos()">Get
@@ -34,7 +35,8 @@
                 </div>
             </div>
 
-            <div v-if="pages['home']" class="Home-page">
+            <!-- legacy home page -->
+            <!-- <div v-if="pages['home']" class="Home-page">
                 <div v-if="pages['home']" class="horizontal-container">
                     <button class="image-button" @click="playVideo()">
                         <img src="/static/resources/icons/left_arrow.png" alt="Image 1" width="20%">
@@ -52,6 +54,107 @@
                     </div>
                     <div class="likes-amount">7</div>
                 </div>
+            </div> -->
+
+            <div v-if="pages['home']" class="Home-page">
+                <div v-if="pages['home']" class="horizontal-container">
+                    <button class="image-button" @click="playVideo(), fetchComments(currentVideo.idVideo)">
+                        <img src="/static/resources/icons/left_arrow.png" alt="Image 1" width="20%">
+                    </button>
+                    <div id="video-player">
+                        <video controls :src="currentVideo.videoPath"></video>
+                    </div>
+                    <button class="image-button" @click="playVideo(), fetchComments(currentVideo.idVideo)">
+                        <img src="/static/resources/icons/right_arrow.png" alt="Image 1" width="20%">
+                    </button>
+                </div>
+                <div v-if="currentVideo.videoTitle != 'xyz'" class="like-button">
+                    <div class="heart-bg">
+                        <div class="heart-icon" :class="{ 'liked': likedVideoIds.includes(currentVideo.idVideo) }"
+                            @click="toggleLike(currentVideo.idVideo)"></div>
+                    </div>
+                    <div class="likes-amount">{{ currentVideo.likeCount }}</div>
+                </div>
+                <div v-if="currentVideo.videoTitle == 'xyz'">
+                    <h1 style="color: white">Welcome to MINUTES, go next by arrow</h1>
+                </div>
+                <div
+                    v-if="commentsData != null && currentVideo.videoTitle!='xyz' && Object.keys(commentsData).length == 0">
+                    <h1>NO COMMENTS</h1>
+                </div>
+                <div v-if="commentsData != null" id="commentsList" style="margin-bottom: 100px;">
+                    <ul class="list-group">
+                        <div v-for="comment in commentsData">
+                            <p></p>
+                            <li class="list-group-item col-7 mx-auto">
+                                <div class="d-flex w-100 justify-content-between" id="comment">
+                                    {{comment.commentText}}
+                                    <div v-if="currentUser.idUser == comment.idUser" class="btn-group-xs">
+                                        <button class="utilityBtn text-success"
+                                            @click="selectComment(comment.idComment)">✎</button>
+                                        <button class="utilityBtn text-danger"
+                                            @click="deleteComment(comment.idComment)">x</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </div>
+                    </ul>
+                    <modal v-if="isEditComment" @close="hideModal">
+                        <!--you can use custom content here to overwrite default content-->
+                        <div slot="header" class="modal-header">
+                            Edit Comment
+                        </div>
+                        <div slot="body">
+                            <div class="form-group col-6">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text  modal-prepend">Comment Body</span>
+                                    </div>
+                                    <input class="col-8 form-control" type="text" id="schoolName"
+                                        v-model="selectedComment.commentText" placeholder="Comment Body" />
+                                </div>
+                            </div>
+                        </div>
+                        <div slot="footer">
+                            <button type="button" class="btn btn-secondary" v-on:click="hideModal()">Close</button>
+                        </div>
+                    </modal>
+                    <!-- template for the modal component -->
+                    <script type="text/x-template" id="modal-template">
+                  <transition name="modal">
+                    <div class="modal-backdrop">
+                    <div class="modal">
+                      <header class="modal-header">
+                        <slot name="header">
+                          This is the default tile!
+                          <button type="button" class="btn-close" @click="hideModal()">
+                            x
+                          </button>
+                        </slot>
+                      </header>
+                      <section class="modal-body">
+                        <slot name="body">
+                          I'm the default body!
+                        </slot>
+                       </section>
+                       <footer class="modal-footer">
+                          <slot name="footer">
+                            I'm the default footer!
+                            <button type="button" class="btn-green" @click="hideModal()">
+                              Close me!
+                            </button>
+                          </slot>
+                        </footer>
+                      </div>
+                    </div>
+                  </transition>
+                    </script>
+                    <form ref="anyname" @submit="addComments">
+                        <textarea id="commentBody" v-model="uploadComment.commentBody"></textarea>
+                        <button @click.prevent="addComments(currentVideo.idVideo)">Write Comment</button>
+                    </form>
+
+                </div>
             </div>
 
             <div v-if="pages['liked']" class="like-page">
@@ -68,15 +171,12 @@
                             <video width="300" controls>
                                 <source :src="video.videoPath" type="video/webm">
                             </video>
-                            <div class=like-and-edit style="display: flex; align-items: flex-end;">
-                                <div class="like-button">
-                                    <div class="heart-bg">
-                                        <div class="heart-icon"
-                                            :class="{ 'liked': likedVideoIds.includes(video.idVideo) }"
-                                            @click="toggleLike(video.idVideo)" @click="getLikedPage"></div>
-                                    </div>
-                                    <div class="likes-amount">{{ likeCounts[video.idVideo] }}</div>
+                            <div class="like-button">
+                                <div class="heart-bg">
+                                    <div class="heart-icon" :class="{ 'liked': likedVideoIds.includes(video.idVideo) }"
+                                        @click="toggleLike(video.idVideo)" @click="getLikedPage"></div>
                                 </div>
+                                <div class="likes-amount">{{ likeCounts[video.idVideo] }}</div>
                             </div>
                         </div>
                     </div>
@@ -105,7 +205,7 @@
                             <video width="300" controls>
                                 <source :src="video.videoPath" type="video/webm">
                             </video>
-                            <div class=like-and-edit style="display: flex; align-items: flex-end;">
+                            <div class="like-and-edit" style="display: flex; align-items: flex-end;">
                                 <div class="like-button">
                                     <div class="heart-bg">
                                         <div class="heart-icon"

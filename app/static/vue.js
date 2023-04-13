@@ -1,3 +1,7 @@
+Vue.component("model", {
+    template: "#modal-template"
+})
+
 const app = new Vue({
     el: '#app',
     data() {
@@ -11,20 +15,19 @@ const app = new Vue({
                 username: "",
                 password: ""
             },
-            videos: [
-                {
-                    title: 'Atoms',
-                    src: '/static/resources/videos/atoms.webm',
-                },
-                {
-                    title: 'Funny Dog Video',
-                    src: '/static/resources/videos/mountains.webm',
-                },
-                {
-                    title: 'Awesome Skateboarding Video',
-                    src: '/static/resources/videos/windmill.webm',
-                },
-            ],
+            currentUser:{
+                idUser: null,
+                username: ""
+            },
+
+            // Comment data part ------
+            isEditComment: false,
+            commentsData: null,
+            // ------------------------
+
+            videoData: null, // current video
+
+            videos: [],
 
             likedVideos: [],
             likedVideoIds: [],
@@ -36,7 +39,14 @@ const app = new Vue({
 
             },
 
-            currentVideo: null,
+            currentVideo: {
+                idVideo: 2,
+                videoPath: "/static/resources/videos/atoms.webm",
+                uploadDate: "2023-03-26 13:44:43",
+                idUser: 2,
+                videoTitle: "xyz",
+                videoDescription: "newdesc"
+            },
 
             videoToUpload: {
                 title: '',
@@ -89,15 +99,22 @@ const app = new Vue({
                 //     likes: 300
                 // }
 
+            },
+            selectedComment: {
+                idComment: "",
+                commentText: "",
+                idUser: "",
+                idVideo: ""
+            },
+            uploadComment: {
+                commentBody: ""
             }
         }
-    },
-    created() {
-        this.setCurrentVideo();
     },
     methods: {
         playVideo() {
             this.currentVideo = this.videos[Math.floor(Math.random() * this.videos.length)];
+            this.currentVideo['likeCount'] = this.getLikeCountVideo(this.currentVideo['idVideo'])
         },
         uploadVideo() {
             let formData = new FormData();
@@ -265,6 +282,85 @@ const app = new Vue({
                     console.log(e);
                 });
         },
+        fetchComments(videoId){
+            axios
+            .get(this.serviceURL+"/Videos/".concat(videoId).concat("/Comments"))
+            .then(response => {
+                this.commentsData = response.data;
+            });
+        },
+        fetchVideos() {
+            axios
+                .get('/Videos')
+                .then(response => {
+                    this.videos =  response.data;
+                })
+        },
+        addComments(videoId){
+            let formData = new FormData();
+            formData.append('comment', this.uploadComment['commentBody']);
+            axios
+            .post('Users/'.concat(this.input['username']).concat("/Comments").concat('?video_id='.concat(videoId)), formData)
+            .then(response=>{
+                console.log(response.data);
+            }).catch(error=>{
+                console.log(error);
+            });
+            this.fetchComments(videoId);
+            this.$forceUpdate();
+            this.$refs.anyname.reset();
+        },
+        getUserInfo(){
+            axios
+            .get(this.serviceURL+"/Users/".concat(this.input['username']))
+            .then(response=>{
+                this.currentUser=response.data[0]
+            });
+    
+        },
+        letItBegin(){
+            this.fetchVideos();
+            this.login();
+            this.getUserInfo();
+        },
+        showModal() {
+            this.isEditComment = true;
+        },
+        hideModal() {
+            this.isEditComment = false;
+            console.log(this.selectedComment['commentText']);
+            this.updateComment();
+        },
+        selectComment(commentId) {
+            console.log(this.isEditComment);
+            this.showModal();
+            for (x in this.commentsData) {
+                if (this.commentsData[x].idComment == commentId) {
+                this.selectedComment = this.commentsData[x];
+                }
+            }
+            console.log(this.selectedComment['commentText']);
+        },
+        updateComment(){
+            let formData = new FormData();
+            formData.append('comment',this.selectedComment['commentText'])
+            axios
+            .patch('Users/'.concat(this.input['username']).concat("/Comments/").concat(this.selectedComment['idComment']), formData)
+            .then(response=>{
+                console.log(response.data);
+            }).catch(error=>{
+                console.log(error);
+            });
+            this.fetchComments(this.currentVideo['idVideo']);
+            this.$forceUpdate();
+        },
+        deleteComment(commentId){
+            axios
+            .delete('Users/'.concat(this.input['username']).concat("/Comments/").concat(commentId));
+            this.fetchComments(this.currentVideo['idVideo']);
+            this.$forceUpdate();
+        }
+
 
     }
 });
