@@ -3,7 +3,7 @@ info:
   version: 1.0.0 
   title: Video Hosting API 
 servers: 
-  - url: https://mock-video-hosting.com/api/v1 
+  - url: https://mock-video-hosting.com/api/V1 
 tags: 
 - name: Authentication
   description: Authentication Gateway
@@ -59,7 +59,7 @@ paths:
           description: User logged out successfully
         '401':
           description: Unauthorized
-  /videos: 
+  /Videos: 
     get: 
       tags: 
         - General 
@@ -78,7 +78,7 @@ paths:
                   $ref: '#/components/schemas/Video' 
         '404': 
           description:  Resource not found  
-  /videos/{video_id}: 
+  /Videos/{video_id}: 
     get: 
       tags: 
         - General 
@@ -106,7 +106,7 @@ paths:
                 $ref: '#/components/schemas/Video' 
         '404': 
           description: Video ID not found
-  /videos/{video_id}/comments: 
+  /Videos/{video_id}/Comments: 
     get: 
       tags: 
         - General 
@@ -132,7 +132,7 @@ paths:
                   $ref: '#/components/schemas/Comment' 
         '404': 
           description: Video ID not found 
-  /users/{username}/videos:
+  /Users/{username}/Videos:
     get: 
       tags: 
         - Video
@@ -143,7 +143,7 @@ paths:
         - in: path 
           name: username 
           schema: 
-            type: integer 
+            type: string 
           required: true 
           description: Numeric ID of the user uploading the video 
       security: 
@@ -171,7 +171,7 @@ paths:
         - in: path 
           name: username 
           schema: 
-            type: integer 
+            type: string 
           required: true 
           description: Numeric ID of the user uploading the video 
       requestBody: 
@@ -200,7 +200,7 @@ paths:
                 $ref: '#/components/schemas/Video' 
         '401': 
           description: Unauthorized - user is not authenticated
-  /users/{user_id}/videos/liked:
+  /Users/{user_id}/Videos/Liked:
     get:
       tags:
         - Video
@@ -228,7 +228,7 @@ paths:
       - OAuth2: 
         - write 
         - read 
-  /users/{username}/videos/{video_id}: 
+  /Users/{username}/Videos/{video_id}: 
     delete: 
       summary: Delete video by video_id and user_id 
       operationId: deleteVideo 
@@ -244,7 +244,7 @@ paths:
           description: The logged-in user's username
           required: true 
           schema: 
-            type: integer 
+            type: string 
         - name: video_id 
           in: path 
           description: The ID of the video to delete 
@@ -262,7 +262,40 @@ paths:
           description: Unauthorized - user is not authenticated 
         '404': 
           description: Video not found
-  /users/{username}/videos/{video_id}/like:
+    put: 
+      summary: Edit video title and description by video_id and user_id 
+      operationId: editVideo 
+      tags: 
+        - Video 
+      security: 
+      - OAuth2: 
+        - write 
+        - read 
+      parameters: 
+        - name: username 
+          in: path 
+          description: The logged-in user's username
+          required: true 
+          schema: 
+            type: string
+        - name: video_id 
+          in: path 
+          description: The ID of the video to delete 
+          required: true 
+          schema: 
+            type: integer 
+      responses: 
+        '200': 
+          description: Video edited 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Video' 
+        '401': 
+          description: Unauthorized - user is not authenticated 
+        '404': 
+          description: Video not found
+  /Users/{username}/Videos/{video_id}/like:
     post: 
       summary: like a video based on videoid and userid 
       operationId: likeVideo 
@@ -331,7 +364,7 @@ paths:
           description: Video not found
         '204':
           description: No Content
-  /users: 
+  /Users: 
     get: 
       tags: 
         - General 
@@ -374,7 +407,7 @@ paths:
                   $ref: '#/components/schemas/User'
         '400': 
           description: Bad Request 
-  /user/{username}: 
+  /User/{username}: 
     get: 
       summary: Get user details 
       description: Get details of the user 
@@ -387,7 +420,7 @@ paths:
           description: ID of the user to retrieve 
           required: true 
           schema: 
-            type: integer 
+            type: string 
       responses: 
         '200': 
           description: User details including uploaded videos and comments 
@@ -443,7 +476,7 @@ paths:
       - OAuth2: 
         - write 
         - read 
-  /user/{username}/comments: 
+  /User/{username}/Comments: 
     get: 
       summary: Get all user's comments 
       description: Get details of the user 
@@ -515,7 +548,7 @@ paths:
       - OAuth2: 
         - write 
         - read 
-  /user/{username}/comments/{comment_id}: 
+  /User/{username}/Comments/{comment_id}: 
     get: 
       summary: Get the specified comment from the user 
       description: Get details of the user 

@@ -311,8 +311,12 @@ class ViDel(Resource):
 	def delete(self, username, videoId):
 		if 'username' in session and username == session['username']:
 			sqlargs = (username, videoId,)
-			response = call('deleteVideo', True, sqlargs)
-			responsecode = 200
+			try:
+				response = call('deleteVideo', True, sqlargs)
+				responsecode = 200
+			except Exception as e:
+				response = e
+				responsecode = 404
 			return make_response(jsonify(response), responsecode)
 		else:
 			return make_response(jsonify({"status": "fail"}), 403)
@@ -349,7 +353,7 @@ class VidLik(Resource):
 			sqlargs = (username, videoId, )
 			response = call('removeLike', True, sqlargs)
 			responsecode = 200
-			return make_response(jsonify("like deleted"), responsecode)
+			return make_response(jsonify(response), responsecode)
 		else:
 			return make_response(jsonify({"status": "fail"}), 403)
 

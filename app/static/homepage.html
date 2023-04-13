@@ -5,13 +5,13 @@
     <title>Minute</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <link rel="stylesheet" href="/static/style.css">
+    
 </head>
 
 <body>
     <div id="app">
-        <header>
-            <h1>Minute</h1>
+        <header v-if="authenticated">
+            <h1 @click="getHome">Minute</h1>
         </header>
         <main>
             <div v-if="pages['login']" class="container-fluid">
@@ -28,36 +28,15 @@
                         <button class="col-4 btn btn-outline-success" type="button"
                             v-on:click="letItBegin()">Login</button>
                     </div>
-                    <!-- <div v-else class="text-center">
-                        <button type="button" class="btn btn-outline-primary" v-on:click="fetchVideos()">Get
-                            Watching!</button>
-                    </div> -->
                 </div>
             </div>
 
-            <!-- legacy home page -->
-            <!-- <div v-if="pages['home']" class="Home-page">
-                <div v-if="pages['home']" class="horizontal-container">
-                    <button class="image-button" @click="playVideo()">
-                        <img src="/static/resources/icons/left_arrow.png" alt="Image 1" width="20%">
-                    </button>
-                    <div id="video-player">
-                        <video controls :src="currentVideo.src"></video>
-                    </div>
-                    <button class="image-button" @click="playVideo()">
-                        <img src="/static/resources/icons/right_arrow.png" alt="Image 1" width="20%">
-                    </button>
-                </div>
-                <div class="like-button">
-                    <div class="heart-bg">
-                        <div class="heart-icon" :class="{ 'liked': isLiked }" @click="toggleLike"></div>
-                    </div>
-                    <div class="likes-amount">7</div>
-                </div>
-            </div> -->
-
             <div v-if="pages['home']" class="Home-page">
-                <div v-if="pages['home']" class="horizontal-container">
+                <p></p>
+                <h1 style="color: antiquewhite; font-family: 'Times New Roman', Times, serif;">{{ currentVideo.videoTitle }}</h1>
+                <div class="horizontal-container">
+                   
+
                     <button class="image-button" @click="playVideo(), fetchComments(currentVideo.idVideo)">
                         <img src="/static/resources/icons/left_arrow.png" alt="Image 1" width="20%">
                     </button>
@@ -73,21 +52,23 @@
                         <div class="heart-icon" :class="{ 'liked': likedVideoIds.includes(currentVideo.idVideo) }"
                             @click="toggleLike(currentVideo.idVideo)"></div>
                     </div>
-                    <div class="likes-amount">{{ currentVideo.likeCount }}</div>
+                    <div class="likes-amount">{{ likeCounts[currentVideo.idVideo] }}</div>
                 </div>
                 <div v-if="currentVideo.videoTitle == 'xyz'">
-                    <h1 style="color: white">Welcome to MINUTES, go next by arrow</h1>
+                    <h1 style="color: white">Welcome, browse videos by clicking on the arrows.</h1>
+                    <h1>They're random btw 😉</h1>
                 </div>
                 <div
                     v-if="commentsData != null && currentVideo.videoTitle!='xyz' && Object.keys(commentsData).length == 0">
                     <h1>NO COMMENTS</h1>
                 </div>
-                <div v-if="commentsData != null" id="commentsList" style="margin-bottom: 100px;">
+                <div v-if="commentsData != null" id="commentsList" style="margin-bottom: 100px;" class="list col-10">
                     <ul class="list-group">
                         <div v-for="comment in commentsData">
                             <p></p>
-                            <li class="list-group-item col-7 mx-auto">
-                                <div class="d-flex w-100 justify-content-between" id="comment">
+                            <li class="list-group-item col-6 mx-auto" style="overflow: auto; background-color: blueviolet; border-radius: 25px">
+                                <p style="color:rgb(233, 113, 69)"><b>{{ comment.userName }}</b></p>
+                                <div class="d-flex flex-column w-100 justify-content-between" id="comment" style="color:aliceblue">
                                     {{comment.commentText}}
                                     <div v-if="currentUser.idUser == comment.idUser" class="btn-group-xs">
                                         <button class="utilityBtn text-success"
@@ -151,6 +132,7 @@
                     </script>
                     <form ref="anyname" @submit="addComments">
                         <textarea id="commentBody" v-model="uploadComment.commentBody"></textarea>
+                        <p></p>
                         <button @click.prevent="addComments(currentVideo.idVideo)">Write Comment</button>
                     </form>
 
@@ -232,10 +214,10 @@
             </div>
 
             <div v-if="pages['edit']" class="edit-video">
-                <form class="edit-video-form" style="display:flex">
+                <form class="edit-video-form" style="display:flex" id="myForm">
                     <div>
                         <label style="color:white;" for="videoTitle">Title:</label>
-                        <input required style="margin-left: 90px;" type="text" id="videoTitle"
+                        <input required style="margin-left: 86px;" type="text" id="videoTitle"
                             v-model="videoToEdit['title']">
                     </div>
                     <div>
@@ -246,14 +228,14 @@
                     <div>
                         <p></p>
                         <p></p>
-                        <button @click.prevent="editVideo">Submit</button>
+                        <input type="submit" value="Submit" @click.prevent="editVideo">
                         <button @click="getProfile(input.username)">Cancel</button>
                     </div>
                 </form>
             </div>
 
             <div v-if="pages['upload']" class="upload-video">
-                <form class="upload-video-form">
+                <form class="upload-video-form" id="myForm">
                     <div>
                         <label for="videoTitle">Title:</label>
                         <input required style="margin-left: 99px;" type="text" id="videoTitle"
@@ -296,6 +278,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
 </body>
 
 </html>

@@ -1,4 +1,4 @@
-Vue.component("model", {
+Vue.component("modal", {
     template: "#modal-template"
 })
 
@@ -15,7 +15,7 @@ const app = new Vue({
                 username: "",
                 password: ""
             },
-            currentUser:{
+            currentUser: {
                 idUser: null,
                 username: ""
             },
@@ -114,21 +114,32 @@ const app = new Vue({
     methods: {
         playVideo() {
             this.currentVideo = this.videos[Math.floor(Math.random() * this.videos.length)];
-            this.currentVideo['likeCount'] = this.getLikeCountVideo(this.currentVideo['idVideo'])
+            // console.log(this.getLikeCountVideo(this.currentVideo['idVideo']))
+            this.getLikeCountVideo(this.currentVideo['idVideo'])
+            this.$set(this.currentVideo,'likeCount', this.likeCounts[this.currentVideo['idVideo']])
         },
         uploadVideo() {
             let formData = new FormData();
-            formData.append('title', this.videoToUpload['title']);
-            formData.append('description', this.videoToUpload['description']);
-            formData.append('file', this.videoToUpload['file']);
-            axios
-                .post('/Users/'.concat(this.input['username']).concat('/Videos'), formData)
-                .then(response => {
-                    console.log(response.data)
-                    this.getProfile(this.input['username'])
-                }).catch(error => {
-                    console.log(error);
-                });
+            var form = document.getElementById("myForm");
+
+            // Check if the form is valid
+            if (form.checkValidity()) {
+                formData.append('title', this.videoToUpload['title']);
+                formData.append('description', this.videoToUpload['description']);
+                formData.append('file', this.videoToUpload['file']);
+                axios
+                    .post('/Users/'.concat(this.input['username']).concat('/Videos'), formData)
+                    .then(response => {
+                        console.log(response.data)
+                        this.getProfile(this.input['username'])
+                    }).catch(error => {
+                        console.log(error);
+                    });
+            } else {
+                // Display an error message or do something else
+                alert("Please fill out all required fields.");
+            }
+
         },
         getAllUserVideos(username) {
             axios
@@ -208,16 +219,24 @@ const app = new Vue({
         },
         editVideo() {
             let formData = new FormData();
-            formData.append('title', this.videoToEdit['title']);
-            formData.append('description', this.videoToEdit['description']);
+            var form = document.getElementById("myForm");
+            // Check if the form is valid
+            if (form.checkValidity()) {
+                formData.append('title', this.videoToEdit['title']);
+                formData.append('description', this.videoToEdit['description']);
 
-            axios
-                .put('/Users/'.concat(this.input['username']).concat('/Videos/').concat(this.videoToEdit['id']), formData)
-                .then(response => {
-                    this.getProfile(this.input['username'])
-                }).catch(error => {
-                    console.log(error)
-                })
+                axios
+                    .put('/Users/'.concat(this.input['username']).concat('/Videos/').concat(this.videoToEdit['id']), formData)
+                    .then(response => {
+                        this.getProfile(this.input['username'])
+                    }).catch(error => {
+                        console.log(error)
+                    })
+            } else {
+                // Display an error message or do something else
+                alert("Please fill out all required fields.");
+            }
+
 
         },
         deleteVideo(videoId) {
@@ -225,7 +244,7 @@ const app = new Vue({
                 axios
                     .delete('/Users/'.concat(this.input['username']).concat('/Videos/').concat(videoId))
                     .then(response => {
-                        this.getProfile(input['username'])
+                        this.getProfile(this.input.username)
                     }).catch(error => {
                         console.log(error)
                     })
@@ -282,43 +301,43 @@ const app = new Vue({
                     console.log(e);
                 });
         },
-        fetchComments(videoId){
+        fetchComments(videoId) {
             axios
-            .get(this.serviceURL+"/Videos/".concat(videoId).concat("/Comments"))
-            .then(response => {
-                this.commentsData = response.data;
-            });
+                .get(this.serviceURL + "/Videos/".concat(videoId).concat("/Comments"))
+                .then(response => {
+                    this.commentsData = response.data;
+                });
         },
         fetchVideos() {
             axios
                 .get('/Videos')
                 .then(response => {
-                    this.videos =  response.data;
+                    this.videos = response.data;
                 })
         },
-        addComments(videoId){
+        addComments(videoId) {
             let formData = new FormData();
             formData.append('comment', this.uploadComment['commentBody']);
             axios
-            .post('Users/'.concat(this.input['username']).concat("/Comments").concat('?video_id='.concat(videoId)), formData)
-            .then(response=>{
-                console.log(response.data);
-            }).catch(error=>{
-                console.log(error);
-            });
+                .post('Users/'.concat(this.input['username']).concat("/Comments").concat('?video_id='.concat(videoId)), formData)
+                .then(response => {
+                    console.log(response.data);
+                }).catch(error => {
+                    console.log(error);
+                });
             this.fetchComments(videoId);
             this.$forceUpdate();
             this.$refs.anyname.reset();
         },
-        getUserInfo(){
+        getUserInfo() {
             axios
-            .get(this.serviceURL+"/Users/".concat(this.input['username']))
-            .then(response=>{
-                this.currentUser=response.data[0]
-            });
-    
+                .get(this.serviceURL + "/Users/".concat(this.input['username']))
+                .then(response => {
+                    this.currentUser = response.data[0]
+                });
+
         },
-        letItBegin(){
+        letItBegin() {
             this.fetchVideos();
             this.login();
             this.getUserInfo();
@@ -336,27 +355,27 @@ const app = new Vue({
             this.showModal();
             for (x in this.commentsData) {
                 if (this.commentsData[x].idComment == commentId) {
-                this.selectedComment = this.commentsData[x];
+                    this.selectedComment = this.commentsData[x];
                 }
             }
             console.log(this.selectedComment['commentText']);
         },
-        updateComment(){
+        updateComment() {
             let formData = new FormData();
-            formData.append('comment',this.selectedComment['commentText'])
+            formData.append('comment', this.selectedComment['commentText'])
             axios
-            .patch('Users/'.concat(this.input['username']).concat("/Comments/").concat(this.selectedComment['idComment']), formData)
-            .then(response=>{
-                console.log(response.data);
-            }).catch(error=>{
-                console.log(error);
-            });
+                .patch('Users/'.concat(this.input['username']).concat("/Comments/").concat(this.selectedComment['idComment']), formData)
+                .then(response => {
+                    console.log(response.data);
+                }).catch(error => {
+                    console.log(error);
+                });
             this.fetchComments(this.currentVideo['idVideo']);
             this.$forceUpdate();
         },
-        deleteComment(commentId){
+        deleteComment(commentId) {
             axios
-            .delete('Users/'.concat(this.input['username']).concat("/Comments/").concat(commentId));
+                .delete('Users/'.concat(this.input['username']).concat("/Comments/").concat(commentId));
             this.fetchComments(this.currentVideo['idVideo']);
             this.$forceUpdate();
         }
